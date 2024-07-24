@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register{% endblock %}
+
+{% block body %}
+    <main class="flex-shrink-0">
+        <section class="py-5 d-flex justify-content-center align-items-center min-vh-100">
+            <div class="container px-5">
+                <!-- Registration Form -->
+                <div class="row justify-content-center">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bg-light rounded-3 shadow-sm p-4">
+                            <h1 class="fw-bolder mb-4 text-center">Register</h1>
+
+                            {% for flash_error in app.flashes('verify_email_error') %}
+                                <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+                            {% endfor %}
+
+                            {{ form_errors(registrationForm) }}
+
+                            {{ form_start(registrationForm, { 'attr': {'class': 'row g-3'} }) }}
+
+                            <div class="col-12">
+                                {{ form_row(registrationForm.username, {
+                                    'attr': {'class': 'form-control'}
+                                }) }}
+                            </div>
+
+                            <div class="col-12">
+                                {{ form_row(registrationForm.email, {
+                                    'attr': {'class': 'form-control'}
+                                }) }}
+                            </div>
+
+                            <div class="col-12">
+                                {{ form_row(registrationForm.plainPassword, {
+                                    'label': 'Password',
+                                    'attr': {'class': 'form-control'}
+                                }) }}
+                            </div>
+
+                            <div class="col-12">
+                                {{ form_row(registrationForm.agreeTerms, {
+                                    'attr': {'class': 'form-check-input'}
+                                }) }}
+                                <label class="form-check-label" for="{{ registrationForm.agreeTerms.vars.id }}">I agree to the terms</label>
+                            </div>
+
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary w-100">Register</button>
+                            </div>
+
+                            {{ form_end(registrationForm) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock %}

@@ -32,9 +32,11 @@ final class CommentFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
+        $createdAt = self::faker()->dateTimeThisYear();
         return [
+            'createdAt' => $createdAt,
+            'updatedAt' => self::faker()->dateTimeBetween($createdAt, 'now'),
             'Content' => self::faker()->text(),
-            'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
             'trick' => self::faker()->randomElement(TrickFactory::repository()->findAll()),
             'user' => self::faker()->randomElement(UserFactory::repository()->findAll()),
         ];

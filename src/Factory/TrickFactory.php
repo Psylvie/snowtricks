@@ -32,11 +32,13 @@ final class TrickFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
+        $createdAt = self::faker()->dateTimeThisYear();
         return [
+            'createdAt' => $createdAt,
+            'updatedAt' => self::faker()->dateTimeBetween($createdAt, 'now'),
             'category' => self::faker()->randomElement(CategoryFactory::repository()->findAll()),
-            'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
             'description' => self::faker()->text(),
-            'name' => self::faker()->unique()->name(),
+            'name' => self::faker()->unique()->sentence('3'),
             'slug' => self::faker()->slug(),
             'user' => self::faker()->randomElement(UserFactory::repository()->findAll()),
         ];

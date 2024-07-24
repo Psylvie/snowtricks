@@ -32,7 +32,11 @@ final class CategoryFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
+        $createdAt = self::faker()->dateTimeThisYear();
+
         return [
+            'createdAt' => $createdAt,
+            'updatedAt' => self::faker()->dateTimeBetween($createdAt, 'now'),
             'name' => self::faker()->word(),
         ];
     }

@@ -21,5 +21,7 @@ class AppFixtures extends Fixture
         PictureFactory::createMany(25);
         VideoFactory::createMany(25);
         CommentFactory::createMany(25);
+
+        $manager->flush();
     }
 }

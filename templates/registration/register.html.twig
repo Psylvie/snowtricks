@@ -1,56 +1,70 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Inscription{% endblock %}
 
 {% block body %}
     <main class="flex-shrink-0">
-        <section class="py-5 d-flex justify-content-center align-items-center min-vh-100">
+        <section class="py-5 d-flex justify-content-center align-items-start min-vh-100">
             <div class="container px-5">
-                <!-- Registration Form -->
+                <!-- Titre -->
+                <h1 class="fw-bolder mb-4 text-light text-center">Inscription</h1>
                 <div class="row justify-content-center">
                     <div class="col-md-6 col-lg-4">
                         <div class="bg-light rounded-3 shadow-sm p-4">
-                            <h1 class="fw-bolder mb-4 text-center">Register</h1>
-
                             {% for flash_error in app.flashes('verify_email_error') %}
                                 <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
                             {% endfor %}
 
-                            {{ form_errors(registrationForm) }}
+                            {{ form_start(registrationForm) }}
 
-                            {{ form_start(registrationForm, { 'attr': {'class': 'row g-3'} }) }}
-
-                            <div class="col-12">
-                                {{ form_row(registrationForm.username, {
-                                    'attr': {'class': 'form-control'}
-                                }) }}
+                            <!-- Nom -->
+                            <div class="form-group mb-3 text-center">
+                                {{ form_label(registrationForm.username, 'Nom', {'label_attr': {'class': 'mt-4'}}) }}
+                                <div class="d-flex flex-column">
+                                    {{ form_widget(registrationForm.username, {
+                                        'attr': {
+                                            'class': 'form-control border-0 bg-transparent',
+                                            'style': 'box-shadow: none; border-bottom: 2px solid black;'
+                                        }
+                                    }) }}
+                                    <div class="border-bottom border-dark" style="height: 2px;"></div>
+                                </div>
                             </div>
 
-                            <div class="col-12">
-                                {{ form_row(registrationForm.email, {
-                                    'attr': {'class': 'form-control'}
-                                }) }}
+                            <!-- Email -->
+                            <div class="form-group mb-3 text-center">
+                                {{ form_label(registrationForm.email, 'Email', {'label_attr': {'class': 'mt-4'}}) }}
+                                <div class="d-flex flex-column">
+                                    {{ form_widget(registrationForm.email, {
+                                        'attr': {
+                                            'class': 'form-control border-0 bg-transparent',
+                                            'style': 'box-shadow: none; border-bottom: 2px solid black;'
+                                        }
+                                    }) }}
+                                    <div class="border-bottom border-dark" style="height: 2px;"></div>
+                                </div>
                             </div>
 
-                            <div class="col-12">
-                                {{ form_row(registrationForm.plainPassword, {
-                                    'label': 'Password',
-                                    'attr': {'class': 'form-control'}
-                                }) }}
+                            <!-- Mot de passe -->
+                            <div class="form-group mb-3 text-center">
+                                {{ form_label(registrationForm.plainPassword, 'Mot de passe', {'label_attr': {'class': 'mt-4'}}) }}
+                                <div class="d-flex flex-column">
+                                    {{ form_widget(registrationForm.plainPassword, {
+                                        'attr': {
+                                            'class': 'form-control border-0 bg-transparent',
+                                            'style': 'box-shadow: none; border-bottom: 2px solid black;'
+                                        }
+                                    }) }}
+                                    <div class="border-bottom border-dark" style="height: 2px;"></div>
+                                </div>
                             </div>
 
-                            <div class="col-12">
-                                {{ form_row(registrationForm.agreeTerms, {
-                                    'attr': {'class': 'form-check-input'}
-                                }) }}
-                                <label class="form-check-label" for="{{ registrationForm.agreeTerms.vars.id }}">I agree to the terms</label>
-                            </div>
-
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary w-100">Register</button>
-                            </div>
+                            <button type="submit" class="mt-4 btn btn-primary w-100">Créer un compte</button>
 
                             {{ form_end(registrationForm) }}
+                            <div class="text-center mt-3 d-block d-md-none">
+                                <a href="{{ path('app_login') }}">Déjà un compte? Se connecter</a>
+                            </div>
                         </div>
                     </div>
                 </div>

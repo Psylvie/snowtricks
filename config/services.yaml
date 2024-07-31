@@ -2,6 +2,9 @@ parameters:
     admin_email: 'peuzin.sylvie.sp@gmail.com'
 
 services:
+    App\Security\UserChecker:
+        arguments:
+            - { name: 'security.user_checker.main' }
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.

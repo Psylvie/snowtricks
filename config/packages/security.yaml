@@ -13,16 +13,25 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
+            pattern: ^/
+            user_checker: App\Security\UserChecker
             lazy: true
             provider: app_user_provider
             form_login:
                 login_path: app_login
                 check_path: app_login
+#                default_target_path: app_home
                 enable_csrf: true
             logout:
                 path: app_logout
                 # where to redirect after logout
-                target: app_login
+                target: app_home
+
+#            remember_me:
+#                secret: '%kernel.secret%'
+#                lifetime: 604800 # 1 week in seconds
+#                path: /
+#                always_remember_me: true
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall

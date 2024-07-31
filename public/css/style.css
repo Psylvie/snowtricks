@@ -1,0 +1,13 @@
+body {
+    background-color: black;
+}
+.btn-primary {
+    background-color: black;
+}
+
+.btn-primary:hover {
+    background-color: white;
+    border-color: black;
+    color: black;
+    font-weight: bold;
+}

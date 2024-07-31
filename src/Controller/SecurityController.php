@@ -106,11 +106,6 @@ class SecurityController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $plainPassword = $form->get('plainPassword')->getData();
-            $confirmPassword = $form->get('confirmPassword')->getData();
-            if ($plainPassword !== $confirmPassword) {
-                $this->addFlash('danger', 'Les mots de passe ne correspondent pas');
-                return $this->redirectToRoute('app_reset_password', ['token' => $token]);
-            }
             $user->setPassword($this->passwordEncoder->hashPassword($user, $plainPassword));
 
             $this->em->persist($user);

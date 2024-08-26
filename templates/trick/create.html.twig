@@ -1,0 +1,50 @@
+{# templates/trick/create.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer une nouvelle figure{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Créer une nouvelle figure</h1>
+
+        <div class="card">
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+
+                <div class="mb-4">
+                    {{ form_label(form.name, null, {'attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.name) }}
+                </div>
+
+                <div class="mb-4">
+                    {{ form_label(form.description, null, {'attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+                    {{ form_errors(form.description) }}
+                </div>
+                <div class="mb-4">
+                    {{ form_label(form.category, null, {'attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.category, {'attr': {'class': 'form-select'}}) }}
+                    {{ form_errors(form.category) }}
+                </div>
+                <h3>Images</h3>
+                <div class="mb-4">
+                    {{ form_label(form.pictures, null, {'attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.pictures, {'attr': {'multiple': 'multiple'}}) }}
+                    {{ form_errors(form.pictures) }}
+                </div>
+                <h3>Vidéos</h3>
+                <div id="videos-list" data-prototype="{{ form_widget(form.videos.vars.prototype)|e('html_attr') }}">
+                    {{ form_row(form.videos) }}
+                </div>
+                <button type="button" id="add-video" class="btn btn-add">Ajouter une vidéo</button>
+
+                {{ form_rest(form) }}
+                <p>{{ form_errors(form) }}</p>
+
+                <button type="submit" class="btn btn-success">Créer la figure</button>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

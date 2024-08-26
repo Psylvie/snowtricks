@@ -6,7 +6,6 @@
     <main class="flex-shrink-0">
         <section class="py-5 d-flex justify-content-center align-items-start min-vh-100">
             <div class="container px-5">
-                <!-- Titre -->
                 <h1 class="fw-bolder mb-4 text-light text-center">Inscription</h1>
                 <div class="row justify-content-center">
                     <div class="col-md-6 col-lg-4">
@@ -14,10 +13,7 @@
                             {% for flash_error in app.flashes('verify_email_error') %}
                                 <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
                             {% endfor %}
-
                             {{ form_start(registrationForm) }}
-
-                            <!-- Nom -->
                             <div class="form-group mb-3 text-center">
                                 {{ form_label(registrationForm.username, 'Nom', {'label_attr': {'class': 'mt-4'}}) }}
                                 <div class="d-flex flex-column">
@@ -28,10 +24,13 @@
                                         }
                                     }) }}
                                     <div class="border-bottom border-dark" style="height: 2px;"></div>
+                                    {% if registrationForm.username.vars.errors|length > 0 %}
+                                        <div class="text-danger">
+                                            {{ registrationForm.username.vars.errors[0].message }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
-
-                            <!-- Email -->
                             <div class="form-group mb-3 text-center">
                                 {{ form_label(registrationForm.email, 'Email', {'label_attr': {'class': 'mt-4'}}) }}
                                 <div class="d-flex flex-column">
@@ -42,10 +41,13 @@
                                         }
                                     }) }}
                                     <div class="border-bottom border-dark" style="height: 2px;"></div>
+                                    {% if registrationForm.email.vars.errors|length > 0 %}
+                                        <div class="text-danger">
+                                            {{ registrationForm.email.vars.errors[0].message }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
-
-                            <!-- Mot de passe -->
                             <div class="form-group mb-3 text-center">
                                 {{ form_label(registrationForm.plainPassword, 'Mot de passe', {'label_attr': {'class': 'mt-4'}}) }}
                                 <div class="d-flex flex-column">
@@ -56,11 +58,14 @@
                                         }
                                     }) }}
                                     <div class="border-bottom border-dark" style="height: 2px;"></div>
+                                    {% if registrationForm.plainPassword.vars.errors|length > 0 %}
+                                        <div class="text-danger">
+                                            {{ registrationForm.plainPassword.vars.errors[0].message }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
-
                             <button type="submit" class="mt-4 btn btn-primary w-100">Créer un compte</button>
-
                             {{ form_end(registrationForm) }}
                             <div class="text-center mt-3 d-block d-md-none">
                                 <a href="{{ path('app_login') }}">Déjà un compte? Se connecter</a>

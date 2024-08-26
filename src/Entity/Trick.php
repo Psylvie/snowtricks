@@ -8,8 +8,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
+#[UniqueEntity(fields: ['name'], message: 'Ce nom est déja utilisé')]
 #[ORM\Entity(repositoryClass: TrickRepository::class)]
 class Trick
 {
@@ -21,7 +22,6 @@ class Trick
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\Unique]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -37,13 +37,13 @@ class Trick
     /**
      * @var Collection<int, Video>
      */
-    #[ORM\OneToMany(targetEntity: Video::class, mappedBy: 'trick', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Video::class, mappedBy: 'trick', cascade: ['persist'], orphanRemoval: true)]
     private Collection $videos;
 
     /**
      * @var Collection<int, Picture>
      */
-    #[ORM\OneToMany(targetEntity: Picture::class, mappedBy: 'trick', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Picture::class, mappedBy: 'trick', cascade: ['persist'], orphanRemoval: true)]
     private Collection $pictures;
 
     /**
@@ -58,6 +58,7 @@ class Trick
 
     public function __construct()
     {
+        $this->createdAt = new \DateTimeImmutable();
         $this->videos = new ArrayCollection();
         $this->pictures = new ArrayCollection();
         $this->comments = new ArrayCollection();
@@ -137,7 +138,6 @@ class Trick
     public function removeVideo(Video $video): static
     {
         if ($this->videos->removeElement($video)) {
-            // set the owning side to null (unless already changed)
             if ($video->getTrick() === $this) {
                 $video->setTrick(null);
             }

@@ -43,9 +43,9 @@ body {
     }
 }
 .scroll-down, .scroll-up {
-    right: 20px; /* Distance du bord droit de l'image */
-    background-color: rgba(0, 0, 0, 0.5); /* Fond semi-transparent */
-    color: #fff; /* Couleur de la flèche */
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
     border-radius: 50%;
     width: 50px;
     height: 50px;
@@ -59,7 +59,7 @@ body {
 }
 .scroll-down {
     position: absolute;
-    bottom: 20px; /* Distance du bas de l'image */
+    bottom: 20px;
 }
 
 .scroll-down:hover {
@@ -68,9 +68,9 @@ body {
 }
 
 .scroll-up {
-    position: fixed; /* Fixer la position */
-    bottom: 80px; /* Distance du bas de la fenêtre, ajustée pour être au-dessus du footer */
-    right: 20px; /* Distance du bord droit de la fenêtre */
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
 }
 
 .scroll-up:hover {

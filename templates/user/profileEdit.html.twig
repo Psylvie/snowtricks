@@ -11,6 +11,13 @@
                 <div class="row justify-content-center">
                     <div class="col-md-6 col-lg-4">
                         <div class="bg-light rounded-3 shadow-sm p-4">
+                            <div class="text-center mb-4">
+                                {% if app.user.profileImage %}
+                                    <img src="{{ asset('uploads/profileImages/' ~ app.user.profileImage) }}" alt="Photo de profil" class="img-fluid rounded-circle" style="max-width: 150px; max-height: 150px;">
+                                {% else %}
+                                    <img src="{{ asset('uploads/profileImages/avatar.png') }}" alt="Photo de profil" class="img-fluid rounded-circle" style="max-width: 150px; max-height: 150px;">
+                                {% endif %}
+                            </div>
                             {{ form_start(form) }}
                             {{ form_row(form._token) }}
                             <div class="form-group mb-3 text-center">

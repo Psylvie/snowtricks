@@ -25,6 +25,7 @@ class Video
 
     public function __construct()
     {
+        $this->createdAt = new \DateTimeImmutable();
         $this->trick = null;
     }
 

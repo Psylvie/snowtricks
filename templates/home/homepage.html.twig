@@ -4,7 +4,7 @@
 
 {% block body %}
     <header class="bg-dark py-5 position-relative overflow-hidden">
-        <div class="position-absolute top-0 start-0 w-100 h-100">
+        <div id="top" class="position-absolute top-0 start-0 w-100 h-100">
             <img src="{{ asset('images/SnowTrick_0.png') }}" alt="Snow Tricks" class="w-100 h-100 object-fit-xl-fill" style="object-position: center;">
         </div>
         <div class="position-relative text-center z-index-2 py-5 my-5">
@@ -20,30 +20,12 @@
     <div id="top"></div>
     <div id="tricks" class="container px-5 my-5">
         <div class="row g-4">
-            {% for trick in tricks %}
-                <div class="col-12 col-sm-6 col-md-4 col-lg-2 mb-4">
-                    <div class="card h-100">
-                        <img src="{{ asset('images/snowtrick.jpg') }}" class="card-img-top" alt="{{ trick.name }}">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h5 class="card-title mb-0 text-truncate" style="max-width: 70%;">
-                                    <a href="{{ path('app_trick_detail', { 'slug': trick.slug }) }}" style="color: black; text-decoration: none;">{{ trick.name }}</a>
-                                </h5>
-                                {% if is_granted('ROLE_USER') %}
-                                    <div class="d-flex flex-shrink-0">
-                                        <a href="{{ path('app_trick_edit', { 'slug': trick.slug }) }}" class="text-decoration-none me-2">
-                                            <i class="bi bi-pencil" style="color: black;"></i>
-                                        </a>
-                                        <a href="{{ path('app_trick_delete', { 'slug': trick.slug }) }}" class="text-decoration-none" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette figure ?')">
-                                            <i class="bi bi-trash text-danger"></i>
-                                        </a>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+            <div id="tricks-list" class="row g-4">
+                {% include '/trick/_tricks_list.html.twig' %}
+            </div>
+            <div class="text-center mt-4">
+                <button id="load-more-tricks" class="btn btn-primary">Load More</button>
+            </div>
         </div>
     </div>
     <a href="#top" class="scroll-up">

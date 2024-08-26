@@ -20,15 +20,11 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    private $em;
-    private $mailer;
-    private $passwordEncoder;
-
-    public function __construct(EntityManagerInterface $em, MailerService $mailer, UserPasswordHasherInterface $passwordEncoder)
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly MailerService $mailer,
+        private readonly UserPasswordHasherInterface $passwordEncoder)
     {
-        $this->em = $em;
-        $this->mailer = $mailer;
-        $this->passwordEncoder = $passwordEncoder;
     }
 
     #[Route(path: '/login', name: 'app_login')]
@@ -80,10 +76,12 @@ class SecurityController extends AbstractController
                 $this->mailer->sendResetPasswordEmail($user->getEmail(), $resetUrl);
             } catch (TransportExceptionInterface $e) {
                 $this->addFlash('danger', 'Une erreur est survenue lors de l\'envoi de l\'email');
+
                 return $this->redirectToRoute('app_forgotten_password');
             }
 
             $this->addFlash('success', 'Un email de réinitialisation de mot de passe vous a été envoyé');
+
             return $this->redirectToRoute('app_login');
         }
 
@@ -99,6 +97,7 @@ class SecurityController extends AbstractController
 
         if (!$user) {
             $this->addFlash('danger', 'Token inconnu');
+
             return $this->redirectToRoute('app_login');
         }
         $form = $this->createForm(ResetPasswordType::class);

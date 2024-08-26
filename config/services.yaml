@@ -1,4 +1,5 @@
 parameters:
+    pictures_directory: '%kernel.project_dir%/public/uploads/'
     admin_email: 'peuzin.sylvie.sp@gmail.com'
 
 services:

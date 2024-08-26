@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Form\ProfileType;
+use App\Service\PictureService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,8 +30,11 @@ class UserController extends AbstractController
         ]);
     }
 
+    /**
+     * @throws \Exception
+     */
     #[Route('/user/edit', name: 'app_user_edit')]
-    public function editProfile(Request $request): Response
+    public function editProfile(Request $request, PictureService $pictureService): Response
     {
         $user = $this->getUser();
 
@@ -42,6 +46,11 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $profileImage = $form->get('profileImage')->getData();
+            if ($profileImage) {
+                $fileName = $pictureService->addPicture($profileImage, 'ProfileImages', 250, 250, 'profileImages');
+                $user->setProfileImage($fileName);
+            }
             $this->em->persist($user);
             $this->em->flush();
             $this->addFlash('success', 'Profil mis à jour avec succès !');

@@ -19,7 +19,7 @@ class Video
     #[ORM\Column(length: 255)]
     private ?string $videolink = null;
 
-    #[ORM\ManyToOne(inversedBy: 'videos')]
+    #[ORM\ManyToOne(targetEntity: Trick::class, inversedBy: 'videos')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Trick $trick = null;
 

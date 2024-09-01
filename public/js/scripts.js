@@ -1,4 +1,4 @@
-// This script is used to add new video fields to the form when the user clicks on the "Add Video" button.
+// // This script is used to add new video fields to the form when the user clicks on the "Add Video" button.
 const addVideoButton = document.getElementById("add-video");
 const videoList = document.getElementById("videos-list");
 
@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // This script is used to trick pagination on the homepage and the tricks list page.
 document.addEventListener("DOMContentLoaded", function () {
-    let offset = 10; // Commence après les 10 premiers tricks
+    let offset = 15;
     const loadMoreButton = document.getElementById("load-more-tricks");
 
     if (loadMoreButton) {

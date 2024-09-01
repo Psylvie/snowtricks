@@ -24,7 +24,8 @@ class LoadMoreService
     public function loadItems(string $entityClass, int $offset, int $limit, string $template, string $datakey): array
     {
         $repository = $this->em->getRepository($entityClass);
-        $items = $repository->findBy([], null, $limit, $offset);
+
+        $items = $repository->findBy([], ['createdAt' => 'DESC', 'id' => 'ASC'], $limit, $offset);
 
         return [
             'html' => $this->twig->render($template, [$datakey => $items]),

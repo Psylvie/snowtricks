@@ -17,14 +17,15 @@ class HomeController extends AbstractController
 {
     public function __construct(
         private readonly LoadMoreService $loadMoreService,
-        private readonly EntityManagerInterface $em, )
+        private readonly EntityManagerInterface $em)
     {
     }
 
     #[Route('/', name: 'app_home')]
     public function index(): Response
     {
-        $tricks = $this->em->getRepository(Trick::class)->findBy([], null, 10);
+        $tricks = $this->em->getRepository(Trick::class)->findBy([], ['createdAt' => 'DESC'], 15);
+
 
         return $this->render('home/homepage.html.twig', [
             'tricks' => $tricks,
@@ -49,4 +50,5 @@ class HomeController extends AbstractController
 
         return new JsonResponse($data);
     }
+
 }

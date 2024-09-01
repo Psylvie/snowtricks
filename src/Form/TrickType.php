@@ -21,14 +21,21 @@ class TrickType extends AbstractType
             ->add('name', TextType::class, [
                 'label' => 'Nom du Trick',
                 'attr' => ['class' => 'form-control'],
+                'row_attr' => $options['is_edit'] ? ['style' => 'display:none;'] : [],
+                'required' => true,
+                'empty_data' => '',
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Trick Description',
+                'attr' => [
+                    'class' => 'form-control',
+                    'rows' => 10, ],
             ])
             ->add('category', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'name',
                 'label' => 'Category',
+                'placeholder' => 'Groups',
             ])
             ->add('pictures', FileType::class, [
                 'label' => 'Images',
@@ -47,6 +54,7 @@ class TrickType extends AbstractType
                 'by_reference' => false,
                 'required' => false,
                 'label' => false,
+                'mapped' => !$options['is_edit'],
             ]);
     }
 
@@ -54,6 +62,7 @@ class TrickType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Trick::class,
+            'is_edit' => false,
         ]);
     }
 }

@@ -27,7 +27,7 @@ class PictureService
         $validExtensions = ['jpeg', 'jpg', 'png', 'webp'];
 
         if (!in_array($extension, $validExtensions)) {
-            throw new \Exception('Invalid file format');
+            throw new \InvalidArgumentException('Invalid file format');
         }
 
         $fileName = md5(uniqid()).'.'.$extension;
@@ -89,5 +89,16 @@ class PictureService
         }
         imagedestroy($image);
         imagedestroy($resizedImage);
+    }
+
+    public function deletePicture(string $filename, ?string $folder = ''): bool
+    {
+        $filePath = $this->params->get('pictures_directory').$folder.'/'.$filename;
+
+        if (file_exists($filePath)) {
+            return unlink($filePath);
+        }
+
+        return false;
     }
 }

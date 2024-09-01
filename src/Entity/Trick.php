@@ -37,13 +37,13 @@ class Trick
     /**
      * @var Collection<int, Video>
      */
-    #[ORM\OneToMany(targetEntity: Video::class, mappedBy: 'trick', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Video::class, mappedBy: 'trick', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $videos;
 
     /**
      * @var Collection<int, Picture>
      */
-    #[ORM\OneToMany(targetEntity: Picture::class, mappedBy: 'trick', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Picture::class, mappedBy: 'trick', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $pictures;
 
     /**
@@ -167,7 +167,6 @@ class Trick
     public function removePicture(Picture $picture): static
     {
         if ($this->pictures->removeElement($picture)) {
-            // set the owning side to null (unless already changed)
             if ($picture->getTrick() === $this) {
                 $picture->setTrick(null);
             }
@@ -197,7 +196,6 @@ class Trick
     public function removeComment(Comment $comment): static
     {
         if ($this->comments->removeElement($comment)) {
-            // set the owning side to null (unless already changed)
             if ($comment->getTrick() === $this) {
                 $comment->setTrick(null);
             }

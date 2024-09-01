@@ -28,6 +28,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, unique: true)]
     private ?string $username = null;
 
+    #[ORM\Column(type: 'json', nullable: false)]
+    private array $roles = [];
+
     #[Assert\Email(message: 'L\'email n\'est pas valide')]
     #[Assert\NotBlank(message: 'L\'email est obligatoire')]
     #[ORM\Column(length: 255, unique: true)]
@@ -153,7 +156,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        return ['ROLE_USER'];
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+
+        return $this;
     }
 
     public function eraseCredentials(): void

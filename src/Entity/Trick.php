@@ -174,6 +174,14 @@ class Trick
 
         return $this;
     }
+    public function getMainPicture(): ?Picture
+    {
+        return $this->pictures->first();
+    }
+    public function setMainPicture(Picture $picture): void
+    {
+        $this->pictures->add($picture);
+    }
 
     /**
      * @return Collection<int, Comment>

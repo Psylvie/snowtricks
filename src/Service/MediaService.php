@@ -20,59 +20,77 @@ class MediaService
     /**
      * @throws \Exception
      */
-    public function handlePictures(array $picturesData, Trick $trick, string $folder, bool $isMain = false): void
+    public function handlePictures(Trick $trick, array $pictures): void
     {
-        foreach ($picturesData as $picture) {
+        foreach ($pictures as $picture) {
             if ($picture instanceof UploadedFile) {
-                $fileName = $this->pictureService->addPicture($picture, $folder);
-
+                $fileName = $this->pictureService->addPicture($picture, 'TrickPictures', 250, 250);
                 $pictureEntity = new Picture();
                 $pictureEntity->setFilename($fileName);
                 $pictureEntity->setTrick($trick);
-
-                if ($isMain) {
-                    $mainPicture = $trick->getPictures()->first();
-                    if ($mainPicture) {
-                        $this->deletePicture($mainPicture);
-                    }
-
-                    $trick->getPictures()->clear();
-                    $trick->getPictures()->add($pictureEntity);
-                } else {
-                    $trick->getPictures()->add($pictureEntity);
-                }
-
+                $trick->getPictures()->add($pictureEntity);
                 $this->em->persist($pictureEntity);
             }
         }
-
-        $this->em->flush();
     }
 
     /**
      * @throws \Exception
      */
-    public function handleVideos(array $videosData, Trick $trick): void
+    public function handleVideos(Trick $trick, array $videos): void
     {
-        foreach ($videosData as $video) {
+        foreach ($videos as $video) {
             if ($video instanceof Video) {
-                $sanitizedUrl = $this->videoEmbedService->sanitizeUrl($video->getVideoLink());
-
-                if ($this->videoEmbedService->validateVideoLink($sanitizedUrl)) {
-                    $embedUrl = $this->videoEmbedService->getEmbedUrl($sanitizedUrl);
-
-                    $videoEntity = new Video();
-                    $videoEntity->setVideoLink($embedUrl);
-                    $videoEntity->setTrick($trick);
-
-                    $trick->getVideos()->add($videoEntity);
-                    $this->em->persist($videoEntity);
-                } else {
-                    throw new \Exception('Une ou plusieurs vidéos ne sont pas valides.');
-                }
+                $videoLink = $video->getVideoLink();
+                $sanitizedUrl = $this->videoEmbedService->sanitizeUrl($videoLink);
+                $video->setVideoLink($sanitizedUrl);
+                $video->setTrick($trick);
+                $this->em->persist($video);
             }
         }
-        $this->em->flush();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function updatePicture(Picture $picture, UploadedFile $newImageFile): bool
+    {
+        try {
+            if ($picture->getFilename()) {
+                $this->pictureService->deletePicture($picture->getFilename(), '/TrickPictures');
+            }
+
+            $folder = '/TrickPictures';
+            $newFilename = $this->pictureService->addPicture($newImageFile, $folder);
+            $picture->setFilename($newFilename);
+
+            $this->em->flush();
+
+            return true;
+        } catch (\Exception $e) {
+            throw new \Exception('Erreur lors de la mise à jour de l\'image : '.$e->getMessage());
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function updateVideo(Video $video, string $newVideoLink): void
+    {
+        $sanitizedUrl = $this->videoEmbedService->sanitizeUrl($newVideoLink);
+
+        if ($this->videoEmbedService->validateVideoLink($sanitizedUrl)) {
+            $embedUrl = $this->videoEmbedService->getEmbedUrl($sanitizedUrl);
+
+            if ($embedUrl) {
+                $video->setVideolink($embedUrl);
+                $this->em->flush();
+            } else {
+                throw new \Exception('Erreur lors de la génération de l\'URL d\'intégration.');
+            }
+        } else {
+            throw new \Exception('Le lien vidéo est invalide.');
+        }
     }
 
     public function deletePicture(Picture $picture): bool

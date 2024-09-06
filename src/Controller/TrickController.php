@@ -9,11 +9,8 @@ use App\Form\TrickType;
 use App\Repository\TrickRepository;
 use App\Service\LoadMoreService;
 use App\Service\MediaService;
-use App\Service\PictureService;
-use App\Service\VideoEmbedService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,9 +26,7 @@ class TrickController extends AbstractController
     public function __construct(
         private readonly LoadMoreService $loadMoreService,
         private readonly EntityManagerInterface $em,
-        private readonly PictureService $pictureService,
-        private readonly VideoEmbedService $videoEmbedService,
-        private readonly MediaService $mediaService
+        private readonly MediaService $mediaService,
     ) {
     }
 
@@ -63,12 +58,12 @@ class TrickController extends AbstractController
         return new JsonResponse($data);
     }
 
-//    #[Route('/trick/{slug}', name: 'app_trick_detail')]
-//    public function detail(): Response
-//    {
-//        return $this->render('trick/detail.html.twig', [
-//        ]);
-//    }
+    //    #[Route('/trick/{slug}', name: 'app_trick_detail')]
+    //    public function detail(): Response
+    //    {
+    //        return $this->render('trick/detail.html.twig', [
+    //        ]);
+    //    }
 
     /**
      * @throws \Exception
@@ -96,39 +91,15 @@ class TrickController extends AbstractController
             $slug = $slugger->slug($trick->getName());
             $trick->setSlug($slug);
             $trick->setUser($this->getUser());
-            $em->persist($trick);
+
             $pictures = $trickForm->get('pictures')->getData();
-            if (is_array($pictures)) {
-                foreach ($pictures as $picture) {
-                    if ($picture instanceof UploadedFile) {
-                        $fileName = $this->pictureService->addPicture($picture, 'trickPictures', 250, 250);
-                        $pictureEntity = new Picture();
-                        $pictureEntity->setFilename($fileName);
-                        $pictureEntity->setTrick($trick);
-                        $trick->getPictures()->add($pictureEntity);
-                        $em->persist($pictureEntity);
-                    }
-                }
-            }
+            $this->mediaService->handlePictures($trick, $pictures);
+
             $videos = $trickForm->get('videos')->getData();
-            foreach ($videos as $video) {
-                $videoLink = $video->getVideoLink();
-                $sanitizedUrl = $this->videoEmbedService->sanitizeUrl($videoLink);
+            $this->mediaService->handleVideos($videos, (array) $trick);
 
-                if ($this->videoEmbedService->validateVideoLink($sanitizedUrl)) {
-                    $embedUrl = $this->videoEmbedService->getEmbedUrl($sanitizedUrl);
-
-                    $video->setVideolink($embedUrl);
-                    $video->setTrick($trick);
-                    $em->persist($video);
-                } else {
-                    $this->addFlash('error', 'Une ou plusieurs vidéos ne sont pas valides.');
-
-                    return $this->redirectToRoute('app_trick_new');
-                }
-            }
-
-            $em->flush();
+            $this->em->persist($trick);
+            $this->em->flush();
 
             $this->addFlash('success', 'Le trick a bien été ajouté.');
 
@@ -143,25 +114,32 @@ class TrickController extends AbstractController
     /**
      * @throws \Exception
      */
-    #[Route('/trick/edit/{id}', name: 'app_trick_edit')]
-    public function edit(Request $request, Trick $trick): Response
+    #[Route('/trick/edit/{slug}', name: 'app_trick_edit')]
+    public function edit(Request $request, string $slug): Response
     {
         $response = ['success' => false];
+        $trick = $this->em->getRepository(Trick::class)->findOneBy(['slug' => $slug]);
+        if (!$trick) {
+            $this->addFlash('error', 'Trick introuvable.');
 
+            return $this->redirectToRoute('app_trick_list');
+        }
         if ($request->isXmlHttpRequest()) {
             $data = json_decode($request->getContent(), true);
-
-            //            if (!empty($data['delete_main_picture'])) {
-            //                $mainPicture = $trick->getPictures()->first();
-            //                if ($mainPicture) {
-            //                    $response['success'] = $this->mediaService->deletePicture($mainPicture);
-            //                }
-            //            }
 
             if (!empty($data['delete_picture_id'])) {
                 $picture = $this->em->getRepository(Picture::class)->find($data['delete_picture_id']);
                 if ($picture) {
-                    $response['success'] = $this->mediaService->deletePicture($picture);
+                    $this->mediaService->deletePicture($picture);
+
+                    if ($picture === $trick->getMainPicture()) {
+                        $remainingPictures = $trick->getPictures();
+                        $newMainPicture = $remainingPictures->first();
+                        $trick->setMainPicture($newMainPicture);
+                        $this->em->flush();
+                    }
+
+                    $response['success'] = true;
                 }
             }
 
@@ -174,33 +152,21 @@ class TrickController extends AbstractController
 
             return new JsonResponse($response);
         }
-        //        $newImageFile = $request->files->get('newImage');
-        //        if ($newImageFile instanceof UploadedFile) {
-        //            try {
-        //                $this->mediaService->handlePictures([$newImageFile], $trick, 'TrickPictures', true);
-        //                $this->addFlash('success', 'Image principale ajoutée avec succès !');
-        //            } catch (\Exception $e) {
-        //                $this->addFlash('error', 'Erreur lors de l\'ajout de l\'image principale : '.$e->getMessage());
-        //            }
-        //        }
-
         $pictureId = $request->request->get('pictureId');
         $newImageFile = $request->files->get('newImage');
+        $isMainPicture = $request->request->get('isMainPicture');
 
-        if ($newImageFile) {
+        if ($newImageFile && $pictureId) {
             $picture = $this->em->getRepository(Picture::class)->find($pictureId);
 
             if ($picture) {
-                if ($picture->getFilename()) {
-                    $this->pictureService->deletePicture($picture->getFilename(), '/TrickPictures');
-                }
-
-                $folder = '/TrickPictures';
-
                 try {
-                    $newFilename = $this->pictureService->addPicture($newImageFile, $folder);
-                    $picture->setFilename($newFilename);
-                    $this->em->flush();
+                    $this->mediaService->updatePicture($picture, $newImageFile);
+
+                    if ($isMainPicture) {
+                        $trick->setMainPicture($picture);
+                        $this->em->flush();
+                    }
 
                     $this->addFlash('success', 'Image mise à jour avec succès !');
                 } catch (\Exception $e) {
@@ -210,28 +176,18 @@ class TrickController extends AbstractController
                 $this->addFlash('error', 'Image introuvable.');
             }
         }
+
         $videoId = $request->request->get('videoId');
         $newVideoLink = $request->request->get('newVideoLink');
-
         if ($newVideoLink) {
             $video = $this->em->getRepository(Video::class)->find($videoId);
 
             if ($video) {
-                $sanitizedUrl = $this->videoEmbedService->sanitizeUrl($newVideoLink);
-
-                if ($this->videoEmbedService->validateVideoLink($sanitizedUrl)) {
-                    $embedUrl = $this->videoEmbedService->getEmbedUrl($sanitizedUrl);
-
-                    if ($embedUrl) {
-                        $video->setVideolink($embedUrl);
-                        $this->em->flush();
-
-                        $this->addFlash('success', 'Vidéo mise à jour avec succès !');
-                    } else {
-                        $this->addFlash('error', 'Erreur lors de la génération de l\'URL d\'intégration.');
-                    }
-                } else {
-                    $this->addFlash('error', 'Le lien vidéo est invalide.');
+                try {
+                    $this->mediaService->updateVideo($video, $newVideoLink);
+                    $this->addFlash('success', 'Vidéo mise à jour avec succès !');
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Erreur lors de la mise à jour de la vidéo : '.$e->getMessage());
                 }
             } else {
                 $this->addFlash('error', 'Vidéo introuvable.');
@@ -247,19 +203,13 @@ class TrickController extends AbstractController
             $picturesData = $form->get('pictures')->getData();
             $videoData = $form->get('videos')->getData();
 
-            try {
-                $this->mediaService->handlePictures($picturesData, $trick, 'TrickPictures');
-                $this->mediaService->handleVideos($videoData, $trick);
-                $this->em->flush();
+            $this->mediaService->handlePictures($trick, $picturesData);
 
-                $this->addFlash('success', 'Le trick a été mis à jour avec succès !');
+            $this->mediaService->handleVideos($trick, $videoData);
+            $this->em->flush();
+            $this->addFlash('success', 'Le trick a été mis à jour avec succès !');
 
-                return $this->redirectToRoute('app_trick_list');
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de la mise à jour : '.$e->getMessage());
-
-                return $this->redirectToRoute('app_trick_edit', ['id' => $trick->getId()]);
-            }
+            return $this->redirectToRoute('app_trick_list');
         }
 
         return $this->render('trick/edit.html.twig', [

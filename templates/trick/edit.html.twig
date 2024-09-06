@@ -4,28 +4,55 @@
 
 {% block body %}
     <div class="container my-5 bg-light">
-        <!-- Image principale -->
+        <!-- Main Picture -->
         <div class="position-relative overflow-hidden mb-5" style="height: 400px;">
-{#            {% if mainPicture %}#}
-{#                <img src="{{ asset('uploads/TrickPictures/' ~ mainPicture.filename) }}" alt="Image principale du trick" class="w-100 h-100 position-absolute top-0 start-0 object-fit-cover" style="object-position: center;">#}
-{#            {% else %}#}
+            {% if mainPicture %}
+                <img src="{{ asset('uploads/TrickPictures/' ~ mainPicture.filename) }}" alt="Image principale du trick" class="w-100 h-100 position-absolute top-0 start-0 object-fit-cover" style="object-position: center;">
+            {% else %}
                 <img src="{{ asset('images/SnowTrick_0.png') }}" alt="Image principale du trick" class="w-100 h-100 position-absolute top-0 start-0 object-fit-cover" style="object-position: center;">
-{#            {% endif %}#}
+            {% endif %}
             <div class="position-relative text-center text-light bg-dark bg-opacity-50 p-3 rounded z-index-2" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
                 <h1 class="display-4 fw-bolder">{{ trick.name }}</h1>
             </div>
             <div class="position-absolute top-0 end-0 p-3 z-index-2">
                 <div class="d-flex flex-row gap-2">
-                    <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#editMainPictureModal"><i class="bi bi-pencil"></i></a>
-{#                    <a href="#" class="btn btn-secondary delete-image-main" data-picture-id="{{ mainPicture.id }}">#}
-                        <i class="bi bi-trash text-danger"></i>
-{#                    </a>#}
+                    <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#editMainPictureModal">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    {% if mainPicture %}
+                        <a href="#" class="btn btn-secondary delete-image-main" data-picture-id="{{ mainPicture.id }}">
+                            <i class="bi bi-trash text-danger"></i>
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
-
-        <!--  Videos -->
         <div class="row mb-5">
+            <!--  Pictures -->
+            {% for picture in trick.pictures %}
+                <div class="col-md-2 mb-4">
+                    <div class="media-card bg-dark text-light">
+                        <div class="picture-container">
+                            <img src="{{ asset('uploads/TrickPictures/' ~ picture.filename) }}" class="img-fluid rounded-top" alt="Image supplémentaire du trick">
+                        </div>
+                        <div class="media-card-footer">
+                            <div class="media-actions">
+                                <a href="#"
+                                   class="btn btn-sm btn-secondary"
+                                   data-bs-toggle="modal"
+                                   data-bs-target="#editImageModal"
+                                   data-picture-id="{{ picture.id }}">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="#" class="btn btn-secondary delete-picture-link" data-picture-id="{{ picture.id }}">
+                                    <i class="bi bi-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <!--  Videos -->
             {% for video in trick.videos %}
                 <div class="col-md-2 mb-4">
                     <div class="media-card bg-dark text-light">
@@ -49,30 +76,6 @@
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <a href="#" class="btn btn-secondary delete-video-link" data-video-id="{{ video.id }}">
-                                    <i class="bi bi-trash text-danger"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-            <!--  Pictures -->
-            {% for picture in trick.pictures %}
-                <div class="col-md-2 mb-4">
-                    <div class="media-card bg-dark text-light">
-                        <div class="picture-container">
-                            <img src="{{ asset('uploads/TrickPictures/' ~ picture.filename) }}" class="img-fluid rounded-top" alt="Image supplémentaire du trick">
-                        </div>
-                        <div class="media-card-footer">
-                            <div class="media-actions">
-                                <a href="#"
-                                   class="btn btn-sm btn-secondary"
-                                   data-bs-toggle="modal"
-                                   data-bs-target="#editImageModal"
-                                   data-picture-id="{{ picture.id }}">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a href="#" class="btn btn-secondary delete-picture-link" data-picture-id="{{ picture.id }}">
                                     <i class="bi bi-trash text-danger"></i>
                                 </a>
                             </div>
@@ -135,7 +138,32 @@
         </a>
         <a href="{{ path('app_trick_list') }}" class="btn btn-secondary mt-3">Annuler</a>
     </div>
-
+    <!-- Modal main picture -->
+    <div class="modal fade" id="editMainPictureModal" tabindex="-1" aria-labelledby="editMainPictureModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editMainPictureModalLabel">Modifier l'image principale</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateMainPictureForm" action="{{ path('app_trick_edit', { slug: trick.slug }) }}" method="post" enctype="multipart/form-data">
+                        {% if mainPicture %}
+                            <input type="hidden" name="pictureId" value="{{ mainPicture.id }}">
+                        {% endif %}
+                        <div class="mb-3">
+                            <label for="newMainImage" class="form-label">Nouvelle image principale</label>
+                            <input type="file" class="form-control" id="newMainImage" name="newImage">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Mettre à jour</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Modal picture -->
     <div class="modal fade" id="editImageModal" tabindex="-1" aria-labelledby="editImageModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -178,21 +206,22 @@
             </div>
         </div>
     </div>
-
-
     <script>
-        const editImageModal = document.getElementById('editImageModal');
-        editImageModal.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
-            const pictureId = button.getAttribute('data-picture-id');
-            const pictureIdInput = document.getElementById('pictureId');
-            pictureIdInput.value = pictureId;
-        });
         document.addEventListener('DOMContentLoaded', function () {
+            // init modals pictures and videos
+            const editImageModal = document.getElementById('editImageModal');
+            if (editImageModal) {
+                editImageModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const pictureId = button.getAttribute('data-picture-id');
+                    const pictureIdInput = document.getElementById('pictureId');
+                    pictureIdInput.value = pictureId;
+                });
+            }
             const videoModal = document.getElementById('editVideoModal');
             if (videoModal) {
                 videoModal.addEventListener('show.bs.modal', function (event) {
-                    const button = event.relatedTarget; // Button that triggered the modal
+                    const button = event.relatedTarget;
                     const videoId = button.getAttribute('data-video-id');
                     const videoLink = button.getAttribute('data-video-link');
 
@@ -203,16 +232,13 @@
                     modalVideoLink.value = videoLink;
                 });
             }
-        });
-
-
-            // suppression  images
+            // Delete Picture
             document.querySelectorAll('.delete-picture-link').forEach(link => {
                 link.addEventListener('click', function(event) {
                     event.preventDefault();
                     const pictureId = this.getAttribute('data-picture-id');
                     if (confirm('Êtes-vous sûr de vouloir supprimer cette image ?')) {
-                        fetch('{{ path('app_trick_edit', {id: trick.id}) }}', {
+                        fetch('{{ path('app_trick_edit', {slug: trick.slug}) }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -223,7 +249,7 @@
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    location.reload();
+                                    location.reload(); // Recharge la page pour mettre à jour les images
                                 } else {
                                     alert('Erreur lors de la suppression de l\'image.');
                                 }
@@ -232,13 +258,13 @@
                 });
             });
 
-            // suppression vidéos
+            // Delete vidéos
             document.querySelectorAll('.delete-video-link').forEach(link => {
                 link.addEventListener('click', function(event) {
                     event.preventDefault();
                     const videoId = this.getAttribute('data-video-id');
                     if (confirm('Êtes-vous sûr de vouloir supprimer cette vidéo ?')) {
-                        fetch('{{ path('app_trick_edit', {id: trick.id}) }}', {
+                        fetch('{{ path('app_trick_edit', {slug: trick.slug}) }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -249,7 +275,7 @@
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    location.reload();
+                                    location.reload(); // Recharge la page pour mettre à jour les vidéos
                                 } else {
                                     alert('Erreur lors de la suppression de la vidéo.');
                                 }
@@ -258,5 +284,34 @@
                 });
             });
 
+            // Delete main picture
+            document.querySelectorAll('.delete-image-main').forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const pictureId = this.getAttribute('data-picture-id');
+                    if (confirm('Êtes-vous sûr de vouloir supprimer cette image principale ?')) {
+                        fetch('{{ path('app_trick_edit', { slug: trick.slug }) }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                            body: JSON.stringify({
+                                delete_picture_id: pictureId,
+                            }),
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    location.reload(); // Recharge la page pour mettre à jour l'image principale
+                                } else {
+                                    alert('Erreur lors de la suppression de l\'image principale.');
+                                }
+                            });
+                    }
+                });
+            });
+        });
     </script>
+
 {% endblock %}

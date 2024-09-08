@@ -3,212 +3,167 @@
 {% block title %}Éditer le Trick{% endblock %}
 
 {% block body %}
-    <div class="container my-5 bg-light">
-        <!-- Main Picture -->
-        <div class="position-relative overflow-hidden mb-5" style="height: 400px;">
-            {% if mainPicture %}
-                <img src="{{ asset('uploads/TrickPictures/' ~ mainPicture.filename) }}" alt="Image principale du trick" class="w-100 h-100 position-absolute top-0 start-0 object-fit-cover" style="object-position: center;">
-            {% else %}
-                <img src="{{ asset('images/SnowTrick_0.png') }}" alt="Image principale du trick" class="w-100 h-100 position-absolute top-0 start-0 object-fit-cover" style="object-position: center;">
-            {% endif %}
-            <div class="position-relative text-center text-light bg-dark bg-opacity-50 p-3 rounded z-index-2" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                <h1 class="display-4 fw-bolder">{{ trick.name }}</h1>
-            </div>
-            <div class="position-absolute top-0 end-0 p-3 z-index-2">
-                <div class="d-flex flex-row gap-2">
-                    <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#editMainPictureModal">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                    {% if mainPicture %}
-                        <a href="#" class="btn btn-secondary delete-image-main" data-picture-id="{{ mainPicture.id }}">
-                            <i class="bi bi-trash text-danger"></i>
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="row mb-5">
-            <!--  Pictures -->
-            {% for picture in trick.pictures %}
-                <div class="col-md-2 mb-4">
-                    <div class="media-card bg-dark text-light">
-                        <div class="picture-container">
-                            <img src="{{ asset('uploads/TrickPictures/' ~ picture.filename) }}" class="img-fluid rounded-top" alt="Image supplémentaire du trick">
-                        </div>
-                        <div class="media-card-footer">
-                            <div class="media-actions">
-                                <a href="#"
-                                   class="btn btn-sm btn-secondary"
-                                   data-bs-toggle="modal"
-                                   data-bs-target="#editImageModal"
-                                   data-picture-id="{{ picture.id }}">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a href="#" class="btn btn-secondary delete-picture-link" data-picture-id="{{ picture.id }}">
-                                    <i class="bi bi-trash text-danger"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-            <!--  Videos -->
-            {% for video in trick.videos %}
-                <div class="col-md-2 mb-4">
-                    <div class="media-card bg-dark text-light">
-                        <div class="media-card-body p-0">
-                            {% if video.videolink %}
-                                <div class="video-embed">
-                                    <iframe src="{{ video.videolink }}" frameborder="0" allowfullscreen></iframe>
-                                </div>
-                            {% else %}
-                                <p class="text-warning">Vidéo non disponible</p>
-                            {% endif %}
-                        </div>
-                        <div class="media-card-footer">
-                            <div class="media-actions">
-                                <a href="#"
-                                   class="btn btn-sm btn-secondary"
-                                   data-bs-toggle="modal"
-                                   data-bs-target="#editVideoModal"
-                                   data-video-id="{{ video.id }}"
-                                   data-video-link="{{ video.videolink }}">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a href="#" class="btn btn-secondary delete-video-link" data-video-id="{{ video.id }}">
-                                    <i class="bi bi-trash text-danger"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+	<div class="container my-5 bg-light">
+	{% include 'Trick/partials/_media.html.twig' %}
 
-        {{ form_start(form) }}
-        <div class="row justify-content-center mb-4">
-            <div class="col-md-8">
-                <div class="mb-4">
-                    <label class="form-label">Création le :</label>
-                    <p class="form-control-plaintext">{{ trick.createdAt|date('d/m/Y') }}</p>
-                </div>
+	{{ form_start(form) }}
+	<div class="row justify-content-center mb-4">
+	<div class="col-md-8">
+		<div class="row mb-4">
+			<div class="col-md-6 mb-3">
+				<div class="card border-light shadow-sm">
+					<div class="card-body">
+						<h5 class="card-title">Images</h5>
+						{{ form_label(form.pictures, null, {'attr': {'class': 'form-label'}}) }}
+						{{ form_widget(form.pictures, {'attr': {'multiple': 'multiple', 'class': 'form-control btn-secondary'}}) }}
+						{{ form_errors(form.pictures) }}
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6 mb-3">
+				<div class="card border-light shadow-sm">
+					<div class="card-body">
+						<h5 class="card-title">Vidéos</h5>
+						<div id="videos-list"
+							 data-prototype="{{ form_widget(form.videos.vars.prototype)|e('html_attr') }}">
+							{{ form_row(form.videos) }}
+						</div>
+						<button type="button" id="add-video" class="btn btn-secondary mt-2">
+							Ajouter une vidéo
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row mb-4 justify-content-start">
+			<div class="col-md-3 mb-3 d-flex">
+				<div class="info-box p-2 border rounded bg-white w-100 text-start border-dark border-1">
+					<div class="d-flex align-items-center justify-content-center">
+						<i class="fas fa-calendar-alt me-1"></i>
+						<span class="small">Création: {{ trick.createdAt|date('d/m/Y') }}</span>
+					</div>
+				</div>
+			</div>
+			{% if trick.updatedAt is defined %}
+				<div class="col-md-3 mb-3 d-flex">
+					<div class="info-box p-2 border rounded bg-white w-100 text-center border-dark border-1">
+						<div class="d-flex align-items-center justify-content-center">
+							<i class="fas fa-calendar-edit me-1"></i>
+							<span class="small">Modif: {{ trick.updatedAt|date('d/m/Y') }}</span>
+						</div>
+					</div>
+				</div>
+			{% endif %}
+			<div class="col-md-3 mb-3 d-flex">
+				<div class="info-box p-2 border rounded bg-white w-100 text-center border-dark border-1">
+					<div class="d-flex align-items-center justify-content-center">
+						<i class="fas fa-tag me-1"></i>
+						<span class="small">Groupe : {{ trick.category.name }}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="mb-4">
+			{{ form_widget(form.description, {'attr': {'class': 'form-control border-dark border-2 rounded'}}) }}
+		</div>
+		<div class="row mb-4">
+			<div class="col-md-3 mb-3">
+				<div class="input-group">
+					{{ form_widget(form.category, {'attr': {'class': 'form-select btn-secondary'}}) }}
+				</div>
+			</div>
+			<div class="col-md-9 d-flex align-items-center justify-content-end mb-3">
+				<div class="d-flex">
+					<a href="{{ path('app_trick_delete', {'id': trick.id}) }}"
+					   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce trick ?');">
+						<button type="button" class="btn btn-danger me-2">Supprimer</button>
+					</a>
+					<button type="submit" class="btn btn-success">Sauvegarder</button>
+				</div>
+			</div>
+		</div>
+		<p>{{ form_errors(form) }}</p>
+		{{ form_end(form) }}
 
-                {% if trick.updatedAt is defined%}
-                    <div class="mb-4">
-                        <label class="form-label">Modification le :</label>
-                        <p class="form-control-plaintext">{{ trick.updatedAt|date('d/m/Y') }}</p>
-                    </div>
-                {% endif %}
-
-                <div class="mb-4">
-                    {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
-                </div>
-
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-list"></i></span>
-                            {{ form_widget(form.category, {'attr': {'class': 'form-select'}}) }}
-                        </div>
-                    </div>
-
-                    <div class="col-md-9 d-flex justify-content-end align-items-start">
-                        <button type="submit" class="btn btn-success">Sauvegarder</button>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    {{ form_label(form.pictures, null, {'attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.pictures, {'attr': {'multiple': 'multiple'}}) }}
-                    {{ form_errors(form.pictures) }}
-                </div>
-
-                <h3>Vidéos</h3>
-                <div id="videos-list" data-prototype="{{ form_widget(form.videos.vars.prototype)|e('html_attr') }}">
-                    {{ form_row(form.videos) }}
-                </div>
-                <button type="button" id="add-video" class="btn btn-add">Ajouter une vidéo</button>
-
-                <p>{{ form_errors(form) }}</p>
-            </div>
-        </div>
-        {{ form_end(form) }}
-        <a href="{{ path('app_trick_delete', {'id': trick.id}) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce trick ?');" >
-            <button type="submit" class="btn btn-danger">Supprimer</button>
-        </a>
-        <a href="{{ path('app_trick_list') }}" class="btn btn-secondary mt-3">Annuler</a>
-    </div>
-    <!-- Modal main picture -->
-    <div class="modal fade" id="editMainPictureModal" tabindex="-1" aria-labelledby="editMainPictureModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editMainPictureModalLabel">Modifier l'image principale</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="updateMainPictureForm" action="{{ path('app_trick_edit', { slug: trick.slug }) }}" method="post" enctype="multipart/form-data">
-                        {% if mainPicture %}
-                            <input type="hidden" name="pictureId" value="{{ mainPicture.id }}">
-                        {% endif %}
-                        <div class="mb-3">
-                            <label for="newMainImage" class="form-label">Nouvelle image principale</label>
-                            <input type="file" class="form-control" id="newMainImage" name="newImage">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Mettre à jour</button>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Modal picture -->
-    <div class="modal fade" id="editImageModal" tabindex="-1" aria-labelledby="editImageModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editImageModalLabel">Modifier l'image</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editImageForm" method="post" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="newImage" class="form-label">Télécharger une nouvelle image</label>
-                            <input type="file" class="form-control" id="newImage" name="newImage">
-                        </div>
-                        <input type="hidden" id="pictureId" name="pictureId">
-                        <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Modal vidéo -->
-    <div class="modal fade" id="editVideoModal" tabindex="-1" aria-labelledby="editVideoModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editVideoModalLabel">Modifier la Vidéo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editVideoForm" method="post">
-                        <input type="hidden" id="videoId" name="videoId">
-                        <div class="mb-3">
-                            <label for="newVideoLink" class="form-label">Nouveau lien vidéo</label>
-                            <input type="url" class="form-control" id="newVideoLink" name="newVideoLink" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
+		<div class="d-flex justify-content-end mb-3">
+			<a href="{{ path('app_trick_list') }}" class="btn btn-secondary">Retour</a>
+		</div>
+		<!-- Modal main picture -->
+		<div class="modal fade" id="editMainPictureModal" tabindex="-1" aria-labelledby="editMainPictureModalLabel"
+			 aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="editMainPictureModalLabel">Modifier l'image principale</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form id="updateMainPictureForm" action="{{ path('app_trick_edit', { slug: trick.slug }) }}"
+							  method="post" enctype="multipart/form-data">
+							{% if mainPicture %}
+								<input type="hidden" name="pictureId" value="{{ mainPicture.id }}">
+							{% endif %}
+							<div class="mb-3">
+								<label for="newMainImage" class="form-label">Nouvelle image principale</label>
+								<input type="file" class="form-control" id="newMainImage" name="newImage">
+							</div>
+							<button type="submit" class="btn btn-primary">Mettre à jour</button>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal picture -->
+		<div class="modal fade" id="editImageModal" tabindex="-1" aria-labelledby="editImageModalLabel"
+			 aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="editImageModalLabel">Modifier l'image</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form id="editImageForm" method="post" enctype="multipart/form-data">
+							<div class="mb-3">
+								<label for="newImage" class="form-label">Télécharger une nouvelle image</label>
+								<input type="file" class="form-control" id="newImage" name="newImage">
+							</div>
+							<input type="hidden" id="pictureId" name="pictureId">
+							<button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal vidéo -->
+		<div class="modal fade" id="editVideoModal" tabindex="-1" aria-labelledby="editVideoModalLabel"
+			 aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="editVideoModalLabel">Modifier la Vidéo</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form id="editVideoForm" method="post">
+							<input type="hidden" id="videoId" name="videoId">
+							<div class="mb-3">
+								<label for="newVideoLink" class="form-label">Nouveau lien vidéo</label>
+								<input type="url" class="form-control" id="newVideoLink" name="newVideoLink"
+									   required>
+							</div>
+							<button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
         document.addEventListener('DOMContentLoaded', function () {
-            // init modals pictures and videos
             const editImageModal = document.getElementById('editImageModal');
             if (editImageModal) {
                 editImageModal.addEventListener('show.bs.modal', function (event) {
@@ -234,7 +189,7 @@
             }
             // Delete Picture
             document.querySelectorAll('.delete-picture-link').forEach(link => {
-                link.addEventListener('click', function(event) {
+                link.addEventListener('click', function (event) {
                     event.preventDefault();
                     const pictureId = this.getAttribute('data-picture-id');
                     if (confirm('Êtes-vous sûr de vouloir supprimer cette image ?')) {
@@ -244,12 +199,12 @@
                                 'Content-Type': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest'
                             },
-                            body: JSON.stringify({ delete_picture_id: pictureId })
+                            body: JSON.stringify({delete_picture_id: pictureId})
                         })
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    location.reload(); // Recharge la page pour mettre à jour les images
+                                    location.reload();
                                 } else {
                                     alert('Erreur lors de la suppression de l\'image.');
                                 }
@@ -260,7 +215,7 @@
 
             // Delete vidéos
             document.querySelectorAll('.delete-video-link').forEach(link => {
-                link.addEventListener('click', function(event) {
+                link.addEventListener('click', function (event) {
                     event.preventDefault();
                     const videoId = this.getAttribute('data-video-id');
                     if (confirm('Êtes-vous sûr de vouloir supprimer cette vidéo ?')) {
@@ -270,12 +225,12 @@
                                 'Content-Type': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest'
                             },
-                            body: JSON.stringify({ delete_video_id: videoId })
+                            body: JSON.stringify({delete_video_id: videoId})
                         })
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    location.reload(); // Recharge la page pour mettre à jour les vidéos
+                                    location.reload();
                                 } else {
                                     alert('Erreur lors de la suppression de la vidéo.');
                                 }
@@ -286,7 +241,7 @@
 
             // Delete main picture
             document.querySelectorAll('.delete-image-main').forEach(button => {
-                button.addEventListener('click', function(event) {
+                button.addEventListener('click', function (event) {
                     event.preventDefault();
                     const pictureId = this.getAttribute('data-picture-id');
                     if (confirm('Êtes-vous sûr de vouloir supprimer cette image principale ?')) {
@@ -303,7 +258,7 @@
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    location.reload(); // Recharge la page pour mettre à jour l'image principale
+                                    location.reload();
                                 } else {
                                     alert('Erreur lors de la suppression de l\'image principale.');
                                 }
@@ -312,6 +267,5 @@
                 });
             });
         });
-    </script>
-
+	</script>
 {% endblock %}

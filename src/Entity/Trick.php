@@ -49,7 +49,7 @@ class Trick
     /**
      * @var Collection<int, Comment>
      */
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'Trick', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'trick', orphanRemoval: true)]
     private Collection $comments;
 
     #[ORM\ManyToOne]
@@ -174,10 +174,14 @@ class Trick
 
         return $this;
     }
+	
     public function getMainPicture(): ?Picture
     {
-        return $this->pictures->first();
+        $mainPicture = $this->pictures->first();
+
+        return false === $mainPicture ? null : $mainPicture;
     }
+
     public function setMainPicture(Picture $picture): void
     {
         $this->pictures->add($picture);

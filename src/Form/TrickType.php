@@ -29,7 +29,7 @@ class TrickType extends AbstractType
                 'label' => 'Trick Description',
                 'attr' => [
                     'class' => 'form-control',
-                    'rows' => 10, ],
+                    'rows' => 3, ],
             ])
             ->add('category', EntityType::class, [
                 'class' => Category::class,
@@ -38,7 +38,7 @@ class TrickType extends AbstractType
                 'placeholder' => 'Groups',
             ])
             ->add('pictures', FileType::class, [
-                'label' => 'Images',
+                'label' => false,
                 'multiple' => true,
                 'mapped' => false,
                 'required' => false,

@@ -1,0 +1,138 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Afficher le Trick{% endblock %}
+
+{% block body %}
+	<div class="container my-5 bg-white">
+		{% include 'Trick/partials/_media.html.twig' %}
+		<div class="mb-4 text-center">
+			<div class="mx-auto px-3" style="max-width: 85%;">
+				<p class="text-start m-0 text-wrap"
+				   style="word-break: break-word;">{{ trick.description|capitalize }}</p>
+			</div>
+		</div>
+		<div class="row justify-content-center mb-4">
+			<div class="col-md-8">
+				<div class="row mb-4 justify-content-start border-bottom border-dark pb-3 pb-3">
+					<div class="col-md-3 mb-3 d-flex">
+						<div class="info-box p-2 border rounded bg-white w-100 text-center border-dark border-1">
+							<div class="d-flex align-items-center justify-content-center">
+								<i class="fas fa-calendar-alt me-1"></i>
+								<span class="small">Création: {{ trick.createdAt|date('d/m/Y') }}</span>
+							</div>
+						</div>
+					</div>
+					{% if trick.updatedAt is defined %}
+						<div class="col-md-3 mb-3 d-flex">
+							<div class="info-box p-2 border rounded bg-white w-100 text-center border-dark border-1">
+								<div class="d-flex align-items-center justify-content-center">
+									<i class="fas fa-calendar-edit me-1"></i>
+									<span class="small">Modif: {{ trick.updatedAt|date('d/m/Y') }}</span>
+								</div>
+							</div>
+						</div>
+					{% endif %}
+					<div class="col-md-3 mb-3 d-flex">
+						<div class="info-box p-2 border rounded bg-white w-100 text-center border-dark border-1">
+							<div class="d-flex align-items-center justify-content-center">
+								<i class="fas fa-tag me-1"></i>
+								<span class="small">Groupe : {{ trick.category.name|capitalize }}</span>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3 mb-3 d-flex">
+						<div class="info-box p-2 border rounded bg-white w-100 text-center border-dark border-1">
+							<div class="d-flex align-items-center justify-content-center">
+								<i class="fas fa-user me-1"></i>
+								<span class="small">By {{ trick.user.username|capitalize }}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="mb-4">
+					<ul class="list-unstyled ">
+						{% for comment in trick.comments %}
+							<li class="d-flex align-items-center mb-3 p-2">
+								<div class="me-3 d-flex align-items-center">
+									{% if comment.user.profileImage %}
+										<img src="{{ asset('uploads/profileImages/' ~ comment.user.profileImage) }}"
+											 alt="Image de profil de {{ comment.user.username }}" class="rounded-circle"
+											 style="width: 50px; height: 50px;">
+									{% else %}
+										<img src="{{ asset('uploads/profileImages/avatar.png') }}"
+											 alt="Image de profil par défaut" class="rounded-circle"
+											 style="width: 50px; height: 50px;">
+									{% endif %}
+								</div>
+								<div class="flex-grow-1 border border-dark pb-3 p-2 rounded">
+									<strong>{{ comment.user.username }}</strong> - {{ comment.content }}
+								</div>
+							</li>
+						{% else %}
+							<li class="p-2">Aucun commentaire pour le moment.</li>
+						{% endfor %}
+					</ul>
+				</div>
+				<div class="d-flex justify-content-end mb-3">
+					<a href="{{ path('app_trick_list') }}" class="btn btn-secondary">Retour</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Modal main picture -->
+	<div class="modal fade" id="editMainPictureModal" tabindex="-1" aria-labelledby="editMainPictureModalLabel"
+		 aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="editMainPictureModalLabel">Modifier l'image principale</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<form id="updateMainPictureForm" action="{{ path('app_trick_edit', { slug: trick.slug }) }}"
+						  method="post" enctype="multipart/form-data">
+						{% if mainPicture %}
+							<input type="hidden" name="pictureId" value="{{ mainPicture.id }}">
+						{% endif %}
+						<div class="mb-3">
+							<label for="newMainImage" class="form-label">Nouvelle image principale</label>
+							<input type="file" class="form-control" id="newMainImage" name="newImage">
+						</div>
+						<button type="submit" class="btn btn-primary">Mettre à jour</button>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+        document.querySelectorAll('.delete-image-main').forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                const pictureId = this.getAttribute('data-picture-id');
+                if (confirm('Êtes-vous sûr de vouloir supprimer cette image principale ?')) {
+                    fetch('{{ path('app_trick_edit', { slug: trick.slug }) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify({
+                            delete_picture_id: pictureId,
+                        }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert('Erreur lors de la suppression de l\'image principale.');
+                            }
+                        });
+                }
+            });
+        });
+	</script>
+{% endblock %}

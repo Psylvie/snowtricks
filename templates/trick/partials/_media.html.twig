@@ -1,0 +1,91 @@
+<div class="position-relative overflow-hidden mb-5" style="height: 400px;">
+	{% if mainPicture %}
+		<img src="{{ asset('uploads/TrickPictures/' ~ mainPicture.filename) }}" alt="Image principale du trick"
+			 class="w-100 h-100 position-absolute top-0 start-0 object-fit-cover" style="object-position: center;">
+	{% else %}
+		<img src="{{ asset('images/SnowTrick_0.png') }}" alt="Image principale du trick"
+			 class="w-100 h-100 position-absolute top-0 start-0 object-fit-cover" style="object-position: center;">
+	{% endif %}
+	<div class="position-relative text-center text-light bg-dark bg-opacity-50 p-3 rounded z-index-2"
+		 style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+		<h1 class="display-4 fw-bolder">{{ trick.name }}</h1>
+	</div>
+	{% if app.user %}
+	<div class="position-absolute top-0 end-0 p-3 z-index-2">
+		<div class="d-flex flex-row gap-2">
+			<a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#editMainPictureModal">
+				<i class="bi bi-pencil"></i>
+			</a>
+			{% if mainPicture%}
+				<a href="#" class="btn btn-secondary delete-image-main" data-picture-id="{{ mainPicture.id }}">
+					<i class="bi bi-trash text-danger"></i>
+				</a>
+			{% endif %}
+		</div>
+	</div>
+	{% endif %}
+</div>
+
+<div class="row mb-5">
+	<!--  Pictures -->
+	{% for picture in trick.pictures %}
+		<div class="col-md-2 mb-4">
+			<div class="media-card bg-dark text-light">
+				<div class="picture-container">
+					<img src="{{ asset('uploads/TrickPictures/' ~ picture.filename) }}"
+						 class="img-fluid rounded-top" alt="Image supplémentaire du trick">
+				</div>
+				{% if isEditing %}
+					<div class="media-card-footer">
+						<div class="media-actions">
+							<a href="#"
+							   class="btn btn-sm btn-secondary"
+							   data-bs-toggle="modal"
+							   data-bs-target="#editImageModal"
+							   data-picture-id="{{ picture.id }}">
+								<i class="bi bi-pencil"></i>
+							</a>
+							<a href="#" class="btn btn-secondary delete-picture-link"
+							   data-picture-id="{{ picture.id }}">
+								<i class="bi bi-trash text-danger"></i>
+							</a>
+						</div>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	{% endfor %}
+	<!--  Videos -->
+	{% for video in trick.videos %}
+		<div class="col-md-2 mb-4">
+			<div class="media-card bg-dark text-light">
+				<div class="media-card-body p-0">
+					{% if video.videolink %}
+						<div class="video-embed">
+							<iframe src="{{ video.videolink }}" frameborder="0" allowfullscreen></iframe>
+						</div>
+					{% else %}
+						<p class="text-warning">Vidéo non disponible</p>
+					{% endif %}
+				</div>
+				{% if isEditing %}
+					<div class="media-card-footer">
+						<div class="media-actions">
+							<a href="#"
+							   class="btn btn-sm btn-secondary"
+							   data-bs-toggle="modal"
+							   data-bs-target="#editVideoModal"
+							   data-video-id=" {{ video.id }}"
+							   data-video-link="{{ video.videolink }}">
+								<i class="bi bi-pencil"></i>
+							</a>
+							<a href="#" class="btn btn-secondary delete-video-link" data-video-id="{{ video.id }}">
+								<i class="bi bi-trash text-danger"></i>
+							</a>
+						</div>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	{% endfor %}
+</div>

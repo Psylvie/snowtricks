@@ -8,12 +8,12 @@ use App\Entity\Video;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class MediaService
+readonly class MediaService
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly PictureService $pictureService,
-        private readonly VideoEmbedService $videoEmbedService
+        private EntityManagerInterface $em,
+        private PictureService $pictureService,
+        private VideoEmbedService $videoEmbedService
     ) {
     }
 
@@ -24,7 +24,7 @@ class MediaService
     {
         foreach ($pictures as $picture) {
             if ($picture instanceof UploadedFile) {
-                $fileName = $this->pictureService->addPicture($picture, 'TrickPictures', 250, 250);
+                $fileName = $this->pictureService->addPicture($picture, 'TrickPictures');
                 $pictureEntity = new Picture();
                 $pictureEntity->setFilename($fileName);
                 $pictureEntity->setTrick($trick);

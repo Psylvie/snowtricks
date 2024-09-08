@@ -6,6 +6,7 @@ use App\Entity\Picture;
 use App\Entity\Trick;
 use App\Entity\Video;
 use App\Form\TrickType;
+use App\Repository\CommentRepository;
 use App\Repository\TrickRepository;
 use App\Service\LoadMoreService;
 use App\Service\MediaService;
@@ -34,9 +35,19 @@ class TrickController extends AbstractController
     public function list(): Response
     {
         $tricks = $this->em->getRepository(Trick::class)->findBy([], ['createdAt' => 'DESC', 'id' => 'ASC'], 15);
+        $user = $this->getUser();
+
+        $tricksWithPermissions = [];
+        foreach ($tricks as $trick) {
+            $isOwner = $user && $trick->getUser() === $user;
+            $tricksWithPermissions[] = [
+                'trick' => $trick,
+                'isOwner' => $isOwner,
+            ];
+        }
 
         return $this->render('trick/list.html.twig', [
-            'tricks' => $tricks,
+            'tricks' => $tricksWithPermissions,
         ]);
     }
 
@@ -52,27 +63,43 @@ class TrickController extends AbstractController
             Trick::class,
             $offset,
             5,
-            'trick/_tricks_list.html.twig',
+            'trick/partials/_tricks_list.html.twig',
             'tricks');
 
         return new JsonResponse($data);
     }
 
-    //    #[Route('/trick/{slug}', name: 'app_trick_detail')]
-    //    public function detail(): Response
-    //    {
-    //        return $this->render('trick/detail.html.twig', [
-    //        ]);
-    //    }
+    #[Route('/trick/{slug}', name: 'app_trick_show')]
+    public function show(string $slug, TrickRepository $trickRepository, CommentRepository $commentRepository): Response
+    {
+        $trick = $trickRepository->findOneBy(['slug' => $slug]);
+
+        if (!$trick) {
+            $this->addFlash('error', 'Trick introuvable.');
+
+            return $this->redirectToRoute('app_trick_list');
+        }
+
+        $comments = $commentRepository->findBy(['trick' => $trick], ['createdAt' => 'DESC']);
+
+        $mainPicture = $trick->getMainPicture();
+        $isEditing = false;
+
+        return $this->render('trick/show.html.twig', [
+            'trick' => $trick,
+            'comments' => $comments,
+            'mainPicture' => $mainPicture,
+            'isEditing' => $isEditing,
+        ]);
+    }
 
     /**
      * @throws \Exception
-     */
+	 */
     #[Route('/trick/new', name: 'app_trick_new')]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function create(
         Request $request,
-        EntityManagerInterface $em,
         TrickRepository $trickRepository,
         SluggerInterface $slugger): Response
     {
@@ -124,6 +151,7 @@ class TrickController extends AbstractController
 
             return $this->redirectToRoute('app_trick_list');
         }
+        $this->denyAccessUnlessGranted('EDIT', $trick);
         if ($request->isXmlHttpRequest()) {
             $data = json_decode($request->getContent(), true);
 
@@ -216,6 +244,7 @@ class TrickController extends AbstractController
             'form' => $form->createView(),
             'trick' => $trick,
             'mainPicture' => $mainPicture,
+            'isEditing' => true,
         ]);
     }
 
@@ -224,8 +253,9 @@ class TrickController extends AbstractController
      */
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[Route('/trick/delete/{id}', name: 'app_trick_delete', methods: ['GET'])]
-    public function delete(Trick $trick, Request $request): Response
+    public function delete(Trick $trick): Response
     {
+        $this->denyAccessUnlessGranted('DELETE', $trick);
         $this->em->remove($trick);
         $this->em->flush();
 

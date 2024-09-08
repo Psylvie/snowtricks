@@ -1,4 +1,4 @@
-// // This script is used to add new video fields to the form when the user clicks on the "Add Video" button.
+// This script is used to add new video fields to the form when the user clicks on the "Add Video" button.
 const addVideoButton = document.getElementById("add-video");
 const videoList = document.getElementById("videos-list");
 
@@ -49,3 +49,5 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+

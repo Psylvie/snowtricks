@@ -5,10 +5,12 @@ body {
 .btn-primary {
     background-color: black;
 }
+
 .btn-secondary {
     background-color: white;
     color: black;
 }
+
 .btn-secondary:hover {
     background-color: black;
     color: white;
@@ -42,7 +44,6 @@ body {
 }
 
 
-
 .scroll-down, .scroll-up {
     right: 20px;
     background-color: rgba(0, 0, 0, 0.5);
@@ -55,7 +56,7 @@ body {
     justify-content: center;
     text-decoration: none;
     font-size: 24px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     transition: background-color 0.3s, color 0.3s;
 }
 
@@ -150,11 +151,13 @@ body {
     height: 100%;
 }
 
+
 /* Responsive */
 @media (min-width: 1200px) {
     .row.g-4 {
         --bs-gutter-x: 1.5rem;
     }
+
     .col-lg-2 {
         flex: 0 0 20%;
         max-width: 20%;

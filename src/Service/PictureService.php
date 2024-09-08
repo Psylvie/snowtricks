@@ -49,20 +49,12 @@ class PictureService
      */
     private function resizeAndSaveImage(string $sourcePath, string $destinationPath, int $width, int $height, string $extension): void
     {
-        switch ($extension) {
-            case 'jpeg':
-            case 'jpg':
-                $image = imagecreatefromjpeg($sourcePath);
-                break;
-            case 'png':
-                $image = imagecreatefrompng($sourcePath);
-                break;
-            case 'webp':
-                $image = imagecreatefromwebp($sourcePath);
-                break;
-            default:
-                throw new \Exception('Unsupported image format');
-        }
+        $image = match ($extension) {
+            'jpeg', 'jpg' => imagecreatefromjpeg($sourcePath),
+            'png' => imagecreatefrompng($sourcePath),
+            'webp' => imagecreatefromwebp($sourcePath),
+            default => throw new \Exception('Unsupported image format'),
+        };
 
         $resizedImage = imagecreatetruecolor($width, $height);
 

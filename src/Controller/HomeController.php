@@ -25,10 +25,19 @@ class HomeController extends AbstractController
     public function index(): Response
     {
         $tricks = $this->em->getRepository(Trick::class)->findBy([], ['createdAt' => 'DESC'], 15);
+        $user = $this->getUser();
 
+        $tricksWithPermissions = [];
+        foreach ($tricks as $trick) {
+            $isOwner = $user && $trick->getUser() === $user;
+            $tricksWithPermissions[] = [
+                'trick' => $trick,
+                'isOwner' => $isOwner,
+            ];
+        }
 
         return $this->render('home/homepage.html.twig', [
-            'tricks' => $tricks,
+            'tricks' => $tricksWithPermissions,
         ]);
     }
 
@@ -50,5 +59,4 @@ class HomeController extends AbstractController
 
         return new JsonResponse($data);
     }
-
 }

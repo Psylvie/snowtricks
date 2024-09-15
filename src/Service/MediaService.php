@@ -37,7 +37,7 @@ readonly class MediaService
     /**
      * @throws \Exception
      */
-    public function handleVideos(Trick $trick, array $videos): void
+    public function handleVideos(Trick $trick, $videos): void
     {
         foreach ($videos as $video) {
             if ($video instanceof Video) {

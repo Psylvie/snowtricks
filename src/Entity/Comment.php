@@ -2,13 +2,12 @@
 
 namespace App\Entity;
 
-use AllowDynamicProperties;
 use App\Repository\CommentRepository;
 use App\Traits\TimestampableTrait;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[AllowDynamicProperties] #[ORM\Entity(repositoryClass: CommentRepository::class)]
+#[\AllowDynamicProperties] #[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment
 {
     use TimestampableTrait;
@@ -19,7 +18,7 @@ class Comment
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    private ?string $Content = null;
+    private ?string $content = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
@@ -36,24 +35,24 @@ class Comment
 
     public function getContent(): ?string
     {
-        return $this->Content;
+        return $this->content;
     }
 
-    public function setContent(string $Content): static
+    public function setContent(string $content): static
     {
-        $this->Content = $Content;
+        $this->content = $content;
 
         return $this;
     }
 
     public function getTrick(): ?Trick
     {
-        return $this->Trick;
+        return $this->trick;
     }
 
-    public function setTrick(?Trick $Trick): static
+    public function setTrick(?Trick $trick): static
     {
-        $this->Trick = $Trick;
+        $this->trick = $trick;
 
         return $this;
     }

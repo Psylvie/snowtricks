@@ -1,7 +1,4 @@
-{% for item in tricks %}
-	{% set trick = item.trick %}
-	{% set isOwner = item.isOwner %}
-
+{% for trick in tricks %}
 	<div class="col-12 col-sm-6 col-md-4 col-lg-2 mb-4">
 		<div class="card h-100">
 			{% set mainPicture = trick.getPictures|first %}
@@ -18,7 +15,7 @@
 							{{ trick.name }}
 						</a>
 					</h5>
-					{% if is_granted('ROLE_USER') and isOwner %}
+					{% if is_granted('ROLE_USER') and trick.getUser == app.user %}
 						<div class="d-flex flex-shrink-0">
 							<a href="{{ path('app_trick_edit', { 'slug': trick.slug }) }}"
 							   class="text-decoration-none me-2">

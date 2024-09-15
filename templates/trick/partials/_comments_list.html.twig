@@ -1,0 +1,57 @@
+<div class="mb-4">
+	<ul class="list-unstyled">
+		{% for comment in comments %}
+			<li class="d-flex align-items-center mb-3 p-2">
+				<div class="me-3 d-flex align-items-center">
+					{% if comment.user.profileImage %}
+						<img src="{{ asset('uploads/profileImages/' ~ comment.user.profileImage) }}"
+							 alt="Image de profil de {{ comment.user.username }}" class="rounded-circle"
+							 style="width: 50px; height: 50px;">
+					{% else %}
+						<img src="{{ asset('uploads/profileImages/avatar.png') }}"
+							 alt="Image de profil par défaut" class="rounded-circle"
+							 style="width: 50px; height: 50px;">
+					{% endif %}
+				</div>
+				<div class="flex-grow-1 border border-dark pb-3 p-2 rounded">
+					<strong>{{ comment.user.username }}</strong> le {{ comment.createdAt|date('d/m/Y') }} - {{ comment.content|capitalize }}
+				</div>
+			</li>
+		{% else %}
+			<li class="p-2">Aucun commentaire pour le moment.</li>
+		{% endfor %}
+	</ul>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let offset = 0;
+        const loadMoreButton = document.getElementById("load-more-comments");
+        const trickSlug = loadMoreButton ? loadMoreButton.getAttribute('data-trick-slug') : '';
+
+        if (loadMoreButton && trickSlug) {
+            loadMoreButton.addEventListener("click", function () {
+                fetch(`/trick/${trickSlug}/comments/load-more/${offset}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const commentsList = document.getElementById("tricks-comments");
+                        commentsList.insertAdjacentHTML("beforeend", data.html);
+
+                        offset += 3;
+
+                        if (!data.hasMore) {
+                            loadMoreButton.style.display = "none";
+                        }
+                    })
+                    .catch(error => console.error("Error loading more comments:", error));
+            });
+        } else {
+            console.error("Load more button or trick slug not found.");
+        }
+    });
+
+</script>

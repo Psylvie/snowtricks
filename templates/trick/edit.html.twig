@@ -4,9 +4,8 @@
 
 {% block body %}
 	<div class="container my-5 bg-light">
-	{% include 'Trick/partials/_media.html.twig' %}
-
 	{{ form_start(form) }}
+	{% include 'Trick/partials/_media.html.twig' with {'form': form}%}
 	<div class="row justify-content-center mb-4">
 	<div class="col-md-8">
 		<div class="row mb-4">

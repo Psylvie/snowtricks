@@ -8,11 +8,11 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-class LoadMoreService
+readonly class LoadMoreService
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly Environment $twig)
+        private EntityManagerInterface $em,
+        private Environment $twig)
     {
     }
 
@@ -21,7 +21,12 @@ class LoadMoreService
      * @throws RuntimeError
      * @throws LoaderError
      */
-    public function loadItems(string $entityClass, int $offset, int $limit, string $template, string $datakey): array
+    public function loadItems(
+        string $entityClass,
+        int $offset,
+        int $limit,
+        string $template,
+        string $datakey): array
     {
         $repository = $this->em->getRepository($entityClass);
 

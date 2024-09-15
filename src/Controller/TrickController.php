@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
 use App\Entity\Picture;
 use App\Entity\Trick;
 use App\Entity\Video;
+use App\Form\CommentType;
 use App\Form\TrickType;
 use App\Repository\CommentRepository;
 use App\Repository\TrickRepository;
@@ -31,23 +33,14 @@ class TrickController extends AbstractController
     ) {
     }
 
-    #[Route('/trick', name: 'app_trick_list')]
+    #[Route('/tricks', name: 'app_tricks_list')]
     public function list(): Response
     {
-        $tricks = $this->em->getRepository(Trick::class)->findBy([], ['createdAt' => 'DESC', 'id' => 'ASC'], 15);
+        $tricks = $this->em->getRepository(Trick::class)->findBy([], ['createdAt' => 'DESC'], 15);
         $user = $this->getUser();
 
-        $tricksWithPermissions = [];
-        foreach ($tricks as $trick) {
-            $isOwner = $user && $trick->getUser() === $user;
-            $tricksWithPermissions[] = [
-                'trick' => $trick,
-                'isOwner' => $isOwner,
-            ];
-        }
-
         return $this->render('trick/list.html.twig', [
-            'tricks' => $tricksWithPermissions,
+            'tricks' => $tricks,
         ]);
     }
 
@@ -70,8 +63,12 @@ class TrickController extends AbstractController
     }
 
     #[Route('/trick/{slug}', name: 'app_trick_show')]
-    public function show(string $slug, TrickRepository $trickRepository, CommentRepository $commentRepository): Response
-    {
+    public function show(
+        Request $request,
+        string $slug,
+        TrickRepository $trickRepository,
+        CommentRepository $commentRepository
+    ): Response {
         $trick = $trickRepository->findOneBy(['slug' => $slug]);
 
         if (!$trick) {
@@ -80,23 +77,45 @@ class TrickController extends AbstractController
             return $this->redirectToRoute('app_trick_list');
         }
 
-        $comments = $commentRepository->findBy(['trick' => $trick], ['createdAt' => 'DESC']);
+        $limit = 5;
+        $offset = 0;
 
+        $comments = $trick->getComments()
+            ->slice($offset, $limit); // La méthode `slice` est utilisée pour la pagination
+
+        $hasMore = count($trick->getComments()) > ($offset + $limit);
         $mainPicture = $trick->getMainPicture();
         $isEditing = false;
+
+        $comment = new Comment();
+        $commentForm = $this->createForm(CommentType::class, $comment);
+        $commentForm->handleRequest($request);
+
+        if ($commentForm->isSubmitted() && $commentForm->isValid()) {
+            $comment->setTrick($trick);
+            $comment->setUser($this->getUser());
+
+            $this->em->persist($comment);
+            $this->em->flush();
+            $this->addFlash('success', 'Votre commentaire a été ajouté.');
+
+            return $this->redirectToRoute('app_trick_show', ['slug' => $slug]);
+        }
 
         return $this->render('trick/show.html.twig', [
             'trick' => $trick,
             'comments' => $comments,
             'mainPicture' => $mainPicture,
             'isEditing' => $isEditing,
+            'commentForm' => $commentForm->createView(),
+			'hasMore' => $hasMore,
         ]);
     }
 
     /**
      * @throws \Exception
-	 */
-    #[Route('/trick/new', name: 'app_trick_new')]
+     */
+    #[Route('/newTrick', name: 'app_trick_newTrick')]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function create(
         Request $request,
@@ -122,9 +141,6 @@ class TrickController extends AbstractController
             $pictures = $trickForm->get('pictures')->getData();
             $this->mediaService->handlePictures($trick, $pictures);
 
-            $videos = $trickForm->get('videos')->getData();
-            $this->mediaService->handleVideos($videos, (array) $trick);
-
             $this->em->persist($trick);
             $this->em->flush();
 
@@ -135,6 +151,7 @@ class TrickController extends AbstractController
 
         return $this->render('trick/create.html.twig', [
             'form' => $trickForm->createView(),
+            'isEditing' => false,
         ]);
     }
 
@@ -142,8 +159,11 @@ class TrickController extends AbstractController
      * @throws \Exception
      */
     #[Route('/trick/edit/{slug}', name: 'app_trick_edit')]
-    public function edit(Request $request, string $slug): Response
-    {
+    public function edit(
+        Request $request,
+        string $slug,
+        SluggerInterface $slugger
+    ): Response {
         $response = ['success' => false];
         $trick = $this->em->getRepository(Trick::class)->findOneBy(['slug' => $slug]);
         if (!$trick) {
@@ -228,6 +248,8 @@ class TrickController extends AbstractController
         $mainPicture = $trick->getPictures()->first();
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $slug = $slugger->slug($trick->getName());
+            $trick->setSlug($slug);
             $picturesData = $form->get('pictures')->getData();
             $videoData = $form->get('videos')->getData();
 

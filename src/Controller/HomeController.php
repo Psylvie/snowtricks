@@ -27,17 +27,8 @@ class HomeController extends AbstractController
         $tricks = $this->em->getRepository(Trick::class)->findBy([], ['createdAt' => 'DESC'], 15);
         $user = $this->getUser();
 
-        $tricksWithPermissions = [];
-        foreach ($tricks as $trick) {
-            $isOwner = $user && $trick->getUser() === $user;
-            $tricksWithPermissions[] = [
-                'trick' => $trick,
-                'isOwner' => $isOwner,
-            ];
-        }
-
         return $this->render('home/homepage.html.twig', [
-            'tricks' => $tricksWithPermissions,
+            'tricks' => $tricks,
         ]);
     }
 
@@ -53,7 +44,7 @@ class HomeController extends AbstractController
             Trick::class,
             $offset,
             5,
-            'trick/_tricks_list.html.twig',
+            'trick/partials/_tricks_list.html.twig',
             'tricks'
         );
 

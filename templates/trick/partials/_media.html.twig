@@ -6,20 +6,43 @@
 		<img src="{{ asset('images/SnowTrick_0.png') }}" alt="Image principale du trick"
 			 class="w-100 h-100 position-absolute top-0 start-0 object-fit-cover" style="object-position: center;">
 	{% endif %}
-	<div class="position-relative text-center text-light bg-dark bg-opacity-50 p-3 rounded z-index-2"
+	<div class="position-relative text-center p-3 rounded z-index-2"
 		 style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
-		<h1 class="display-4 fw-bolder">{{ trick.name }}</h1>
+		{% if isEditing %}
+			<div class="form-group bg-dark bg-opacity-75 p-3 rounded">
+				{{ form_widget(form.name, {
+					'attr': {
+						'class': 'form-control bg-transparent text-white fs-1 border-0 text-center fw-bolder '
+					}
+				}) }}
+				{{ form_errors(form.name) }}
+			</div>
+		{% else %}
+			<div class="bg-dark bg-opacity-75 p-3 rounded">
+				<h1 class="display-6 fw-bolder text-white">{{ trick.name }}</h1>
+			</div>
+		{% endif %}
 	</div>
+
 	{% if app.user %}
 	<div class="position-absolute top-0 end-0 p-3 z-index-2">
 		<div class="d-flex flex-row gap-2">
+			{% if isEditing and mainPicture%}
 			<a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#editMainPictureModal">
 				<i class="bi bi-pencil"></i>
 			</a>
-			{% if mainPicture%}
 				<a href="#" class="btn btn-secondary delete-image-main" data-picture-id="{{ mainPicture.id }}">
 					<i class="bi bi-trash text-danger"></i>
 				</a>
+				{% else  %}
+					<a href="{{ path('app_trick_edit', { 'slug': trick.slug }) }}"
+					   class="btn btn-secondary">
+						<i class="bi bi-pencil"></i>
+					</a>
+					<a href="{{ path('app_trick_delete', {'id': trick.id}) }}" class="btn btn-secondary"
+					   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce trick ?');">
+						<i class="bi bi-trash text-danger"></i>
+					</a>
 			{% endif %}
 		</div>
 	</div>
@@ -62,7 +85,7 @@
 				<div class="media-card-body p-0">
 					{% if video.videolink %}
 						<div class="video-embed">
-							<iframe src="{{ video.videolink }}" frameborder="0" allowfullscreen></iframe>
+							<iframe src="{{ video.videolink }}"  allowfullscreen></iframe>
 						</div>
 					{% else %}
 						<p class="text-warning">Vidéo non disponible</p>

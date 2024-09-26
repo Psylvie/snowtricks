@@ -14,44 +14,13 @@
 					{% endif %}
 				</div>
 				<div class="flex-grow-1 border border-dark pb-3 p-2 rounded">
-					<strong>{{ comment.user.username }}</strong> le {{ comment.createdAt|date('d/m/Y') }} - {{ comment.content|capitalize }}
+					<strong>{{ comment.user.username|capitalize }}</strong> le {{ comment.createdAt|date('d/m/Y') }}
+					- {{ comment.content|capitalize }}
 				</div>
 			</li>
-		{% else %}
-			<li class="p-2">Aucun commentaire pour le moment.</li>
 		{% endfor %}
 	</ul>
+	{% if comments|length == 0 %}
+		<div class="d-flex justify-content-center p-2 text-muted small"><em>Aucun commentaire pour le moment.</em></div>
+	{% endif %}
 </div>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        let offset = 0;
-        const loadMoreButton = document.getElementById("load-more-comments");
-        const trickSlug = loadMoreButton ? loadMoreButton.getAttribute('data-trick-slug') : '';
-
-        if (loadMoreButton && trickSlug) {
-            loadMoreButton.addEventListener("click", function () {
-                fetch(`/trick/${trickSlug}/comments/load-more/${offset}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        const commentsList = document.getElementById("tricks-comments");
-                        commentsList.insertAdjacentHTML("beforeend", data.html);
-
-                        offset += 3;
-
-                        if (!data.hasMore) {
-                            loadMoreButton.style.display = "none";
-                        }
-                    })
-                    .catch(error => console.error("Error loading more comments:", error));
-            });
-        } else {
-            console.error("Load more button or trick slug not found.");
-        }
-    });
-
-</script>

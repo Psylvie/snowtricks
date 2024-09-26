@@ -30,9 +30,13 @@ class TrickController extends AbstractController
         private readonly LoadMoreService $loadMoreService,
         private readonly EntityManagerInterface $em,
         private readonly MediaService $mediaService,
+        private readonly TrickRepository $trickRepository
     ) {
     }
 
+    /**
+     * List all tricks.
+     */
     #[Route('/tricks', name: 'app_tricks_list')]
     public function list(): Response
     {
@@ -45,6 +49,8 @@ class TrickController extends AbstractController
     }
 
     /**
+     * button to load more tricks.
+     *
      * @throws SyntaxError
      * @throws RuntimeError
      * @throws LoaderError
@@ -62,6 +68,9 @@ class TrickController extends AbstractController
         return new JsonResponse($data);
     }
 
+    /**
+     * Show a trick.
+     */
     #[Route('/trick/{slug}', name: 'app_trick_show')]
     public function show(
         Request $request,
@@ -74,16 +83,22 @@ class TrickController extends AbstractController
         if (!$trick) {
             $this->addFlash('error', 'Trick introuvable.');
 
-            return $this->redirectToRoute('app_trick_list');
+            return $this->redirectToRoute('app_tricks_list');
         }
 
-        $limit = 5;
+        $limit = 3;
         $offset = 0;
 
-        $comments = $trick->getComments()
-            ->slice($offset, $limit); // La méthode `slice` est utilisée pour la pagination
+        $comments = $commentRepository->findBy(
+            ['trick' => $trick],
+            ['createdAt' => 'DESC'],
+            $limit,
+            $offset
+        );
 
-        $hasMore = count($trick->getComments()) > ($offset + $limit);
+        $totalComments = count($commentRepository->findBy(['trick' => $trick]));
+        $hasMore = $totalComments > ($offset + $limit);
+
         $mainPicture = $trick->getMainPicture();
         $isEditing = false;
 
@@ -108,11 +123,43 @@ class TrickController extends AbstractController
             'mainPicture' => $mainPicture,
             'isEditing' => $isEditing,
             'commentForm' => $commentForm->createView(),
-			'hasMore' => $hasMore,
+            'hasMore' => $hasMore,
         ]);
     }
 
     /**
+     * Load more comments.
+     */
+    #[Route('/trick/{slug}/comments/load-more/{offset}', name: 'app_comment_load_more')]
+    public function loadMoreComments(string $slug, int $offset, CommentRepository $commentRepository): JsonResponse
+    {
+        $limit = 2;
+
+        $trick = $this->trickRepository->findOneBy(['slug' => $slug]);
+
+        if (!$trick) {
+            return new JsonResponse(['html' => '', 'hasMore' => false]);
+        }
+        $comments = $commentRepository->findBy(
+            ['trick' => $trick],
+            ['createdAt' => 'DESC'],
+            $limit,
+            $offset
+        );
+
+        $html = $this->renderView('trick/partials/_comments_list.html.twig', ['comments' => $comments]);
+
+        $hasMore = count($comments) === $limit;
+
+        return new JsonResponse([
+            'html' => $html,
+            'hasMore' => $hasMore,
+        ]);
+    }
+
+    /**
+     * Create a new trick.
+     *
      * @throws \Exception
      */
     #[Route('/newTrick', name: 'app_trick_newTrick')]
@@ -146,7 +193,7 @@ class TrickController extends AbstractController
 
             $this->addFlash('success', 'Le trick a bien été ajouté.');
 
-            return $this->redirectToRoute('app_trick_list');
+            return $this->redirectToRoute('app_tricks_list');
         }
 
         return $this->render('trick/create.html.twig', [
@@ -156,6 +203,8 @@ class TrickController extends AbstractController
     }
 
     /**
+     * Edit a trick.
+     *
      * @throws \Exception
      */
     #[Route('/trick/edit/{slug}', name: 'app_trick_edit')]
@@ -169,7 +218,7 @@ class TrickController extends AbstractController
         if (!$trick) {
             $this->addFlash('error', 'Trick introuvable.');
 
-            return $this->redirectToRoute('app_trick_list');
+            return $this->redirectToRoute('app_tricks_list');
         }
         $this->denyAccessUnlessGranted('EDIT', $trick);
         if ($request->isXmlHttpRequest()) {
@@ -259,7 +308,7 @@ class TrickController extends AbstractController
             $this->em->flush();
             $this->addFlash('success', 'Le trick a été mis à jour avec succès !');
 
-            return $this->redirectToRoute('app_trick_list');
+            return $this->redirectToRoute('app_tricks_list');
         }
 
         return $this->render('trick/edit.html.twig', [
@@ -271,6 +320,8 @@ class TrickController extends AbstractController
     }
 
     /**
+     * Delete a trick.
+     *
      * @throws \Exception
      */
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
@@ -283,6 +334,6 @@ class TrickController extends AbstractController
 
         $this->addFlash('success', 'Le trick a été supprimé avec succès !');
 
-        return $this->redirectToRoute('app_trick_list');
+        return $this->redirectToRoute('app_tricks_list');
     }
 }

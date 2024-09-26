@@ -11,7 +11,7 @@
                     <div class="col-md-6 col-lg-4">
                         <div class="bg-light rounded-3 shadow-sm p-4">
                             {% if error %}
-                                <div class="alert alert-danger" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                                <div class="alert alert-danger" role="alert">{{ error }}</div>
                             {% endif %}
 
                             {% if app.user %}
@@ -35,14 +35,14 @@
                                         <div class="border-bottom border-dark" style="height: 2px;"></div>
                                     </div>
                                 </div>
+                                <div class="text-center mt-3">
+                                    <a href="{{ path('app_forgotten_password') }}">Mot de passe oublié ?</a>
+                                </div>
 
                                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                                 <button type="submit" class="mt-4 btn btn-primary w-100">Connexion</button>
 
                             </form>
-                            <div class="text-center mt-3">
-                                <a href="{{ path('app_forgotten_password') }}">Mot de passe oublié ?</a>
-                            </div>
                             <div class="text-center mt-3 d-block d-md-none">
                                 <a href="{{ path('app_register') }}"> S'inscrire</a>
                             </div>

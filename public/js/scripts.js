@@ -50,4 +50,34 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+// This script is used to load more comments on the trick page.
+document.addEventListener("DOMContentLoaded", function () {
+    let offset = 3;
+    const loadMoreButton = document.getElementById("load-more-comments");
+    const trickSlug = loadMoreButton ? loadMoreButton.getAttribute('data-trick-slug') : '';
 
+    if (loadMoreButton && trickSlug) {
+        loadMoreButton.addEventListener("click", function () {
+            fetch(`/trick/${trickSlug}/comments/load-more/${offset}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const commentsList = document.getElementById("tricks-comments");
+                    commentsList.insertAdjacentHTML("beforeend", data.html);
+
+                    offset += 2;
+
+                    if (!data.hasMore) {
+                        loadMoreButton.style.display = "none";
+                    }
+                })
+                .catch(error => console.error("Error loading more comments:", error));
+        });
+    } else {
+        console.error("Load more button or trick slug not found.");
+    }
+});

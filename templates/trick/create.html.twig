@@ -3,45 +3,82 @@
 {% block title %}Créer une nouvelle figure{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-4">Créer une nouvelle figure</h1>
+    <div class="container my-5 bg-light">
+        <h1 class="mb-4 text-center">Créer une nouvelle figure</h1>
 
-        <div class="card">
-            <div class="card-body">
-                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+        {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
 
+        <div class="row mb-4 justify-content-center">
+            <div class="col-md-8">
+
+                <!-- Section pour le nom de la figure -->
                 <div class="mb-4">
-                    {{ form_label(form.name, null, {'attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.name) }}
+                    <div class="card border-light shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Nom de la figure</h5>
+                            {{ form_label(form.name, null, {'attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+                    </div>
                 </div>
 
+                <!-- Section pour la catégorie -->
                 <div class="mb-4">
-                    {{ form_label(form.description, null, {'attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4}}) }}
-                    {{ form_errors(form.description) }}
+                    <div class="card border-light shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Catégorie</h5>
+                            {{ form_label(form.category, null, {'attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.category, {'attr': {'class': 'form-select btn-secondary'}}) }}
+                            {{ form_errors(form.category) }}
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Sections côte à côte pour Images et Vidéos -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-light shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">Images</h5>
+                                {{ form_label(form.pictures, null, {'attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.pictures, {'attr': {'multiple': 'multiple', 'class': 'form-control btn-secondary'}}) }}
+                                {{ form_errors(form.pictures) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-light shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">Vidéos</h5>
+                                <div id="videos-list" data-prototype="{{ form_widget(form.videos.vars.prototype)|e('html_attr') }}">
+                                    {{ form_row(form.videos) }}
+                                </div>
+                                <button type="button" id="add-video" class="btn btn-secondary mt-2">Ajouter une vidéo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section pour la description -->
                 <div class="mb-4">
-                    {{ form_label(form.category, null, {'attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.category, {'attr': {'class': 'form-select'}}) }}
-                    {{ form_errors(form.category) }}
+                    <div class="card border-light shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Description</h5>
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control border-dark border-2 rounded', 'rows': 4}}) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+                    </div>
                 </div>
-                <h3>Images</h3>
-                <div class="mb-4">
-                    {{ form_label(form.pictures, null, {'attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.pictures, {'attr': {'multiple': 'multiple'}}) }}
-                    {{ form_errors(form.pictures) }}
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn btn-success">Créer le trick</button>
                 </div>
-                <h3>Vidéos</h3>
-                <div id="videos-list" data-prototype="{{ form_widget(form.videos.vars.prototype)|e('html_attr') }}">
-                    {{ form_row(form.videos) }}
-                </div>
-                <button type="button" id="add-video" class="btn btn-add">Ajouter une vidéo</button>
 
                 {{ form_rest(form) }}
                 <p>{{ form_errors(form) }}</p>
 
-                <button type="submit" class="btn btn-success">Créer le trick</button>
                 {{ form_end(form) }}
             </div>
         </div>

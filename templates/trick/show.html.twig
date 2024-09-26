@@ -67,14 +67,16 @@
 			<div id="tricks-comments">
 				{% include 'Trick/partials/_comments_list.html.twig' %}
 			</div>
-			{#	{% if hasMore %}#}
-			<div class="text-center mt-4">
-				<button id="load-more-comments" class="btn btn-primary"  data-trick-slug="{{ trick.slug }}">Charger plus de commentaires</button>
-			</div>
-			{#	{% endif %}#}
-				<div class="d-flex justify-content-end mb-3">
-					<a href="{{ path('app_tricks_list') }}" class="btn btn-secondary" data-trick-slug="{{ trick.slug }}">>Retour</a>
+			{% if hasMore %}
+				<div class="text-center mt-4">
+					<button id="load-more-comments" class="btn btn-primary" data-trick-slug="{{ trick.slug }}">
+						Voir plus
+					</button>
 				</div>
+			{% endif %}
+			<div class="d-flex justify-content-end mb-3">
+				<a href="{{ path('app_tricks_list') }}" class="btn btn-secondary" data-trick-slug="{{ trick.slug }}">Retour</a>
 			</div>
 		</div>
+	</div>
 {% endblock %}

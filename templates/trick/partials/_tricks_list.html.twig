@@ -12,7 +12,7 @@
 				<div class="d-flex justify-content-between align-items-center mb-2">
 					<h5 class="card-title mb-0 text-truncate" style="max-width: 70%;">
 						<a href="{{ path('app_trick_show', {'slug': trick.slug}) }}" class="text-decoration-none">
-							{{ trick.name }}
+							{{ trick.name|capitalize }}
 						</a>
 					</h5>
 					{% if is_granted('ROLE_USER') and trick.getUser == app.user %}

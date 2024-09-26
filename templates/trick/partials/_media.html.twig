@@ -19,7 +19,7 @@
 			</div>
 		{% else %}
 			<div class="bg-dark bg-opacity-75 p-3 rounded">
-				<h1 class="display-6 fw-bolder text-white">{{ trick.name }}</h1>
+				<h1 class="display-6 fw-bolder text-white">{{ trick.name|capitalize }}</h1>
 			</div>
 		{% endif %}
 	</div>
@@ -85,7 +85,7 @@
 				<div class="media-card-body p-0">
 					{% if video.videolink %}
 						<div class="video-embed">
-							<iframe src="{{ video.videolink }}"  allowfullscreen></iframe>
+							<iframe src="{{ video.videolink }}" frameborder="0" allowfullscreen></iframe>
 						</div>
 					{% else %}
 						<p class="text-warning">Vidéo non disponible</p>

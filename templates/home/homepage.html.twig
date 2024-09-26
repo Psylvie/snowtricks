@@ -3,32 +3,33 @@
 {% block title %}SNOWTRICKS{% endblock %}
 
 {% block body %}
-    <header class="bg-dark py-5 position-relative overflow-hidden">
-        <div id="top" class="position-absolute top-0 start-0 w-100 h-100">
-            <img src="{{ asset('images/SnowTrick_0.png') }}" alt="Snow Tricks" class="w-100 h-100 object-fit-xl-fill" style="object-position: center;">
-        </div>
-        <div class="position-relative text-center z-index-2 py-5 my-5">
-            <div class="bg-dark bg-opacity-50 p-3 rounded">
-                <h1 class="display-4 fw-bolder text-light">Bienvenue sur SnowTricks</h1>
-                <p class="lead fw-normal text-light">Découvrez les meilleurs tricks de neige</p>
-            </div>
-        </div>
-        <a href="#tricks" class="scroll-down text-light">
-            <i class="bi bi-chevron-down"></i>
-        </a>
-    </header>
-    <div id="top"></div>
-    <div id="tricks" class="container px-5 my-5">
-        <div class="row g-4">
-            <div id="tricks-list" class="row g-4">
-                {% include '/trick/partials/_tricks_list.html.twig' %}
-            </div>
-            <div class="text-center mt-4">
-                <button id="load-more-tricks" class="btn btn-primary">Load More</button>
-            </div>
-        </div>
-    </div>
-    <a href="#top" class="scroll-up">
-        <i class="bi bi-chevron-up"></i>
-    </a>
+	<header class="bg-dark py-5 position-relative overflow-hidden">
+		<div id="top" class="position-absolute top-0 start-0 w-100 h-100">
+			<img src="{{ asset('images/SnowTrick_0.png') }}" alt="Snow Tricks" class="w-100 h-100 object-fit-xl-fill"
+				 style="object-position: center;">
+		</div>
+		<div class="position-relative text-center z-index-2 py-5 my-5">
+			<div class="bg-dark bg-opacity-50 p-3 rounded">
+				<h1 class="display-4 fw-bolder text-light">Bienvenue sur SnowTricks</h1>
+				<p class="lead fw-normal text-light">Partagez vos meilleurs tricks</p>
+			</div>
+		</div>
+		<a href="#tricks" class="scroll-down text-light">
+			<i class="bi bi-chevron-down"></i>
+		</a>
+	</header>
+	<div id="top"></div>
+	<div id="tricks" class="container px-5 my-5">
+		<div class="row g-4">
+			<div id="tricks-list" class="row g-4">
+				{% include '/trick/partials/_tricks_list.html.twig' %}
+			</div>
+			<div class="text-center mt-4">
+				<button id="load-more-tricks" class="btn btn-primary">Voir plus</button>
+			</div>
+		</div>
+	</div>
+	<a href="#top" class="scroll-up">
+		<i class="bi bi-chevron-up"></i>
+	</a>
 {% endblock %}

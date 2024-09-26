@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[UniqueEntity(fields: ['name'], message: 'Ce nom est déja utilisé')]
 #[ORM\Entity(repositoryClass: TrickRepository::class)]
@@ -22,9 +23,11 @@ class Trick
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire')]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'La description est obligatoire')]
     private ?string $description = null;
 
     #[ORM\Column(length: 255)]
@@ -32,6 +35,7 @@ class Trick
 
     #[ORM\ManyToOne(inversedBy: 'tricks')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotBlank(message: 'La catégorie est obligatoire')]
     private ?Category $category = null;
 
     /**
@@ -174,7 +178,7 @@ class Trick
 
         return $this;
     }
-	
+
     public function getMainPicture(): ?Picture
     {
         $mainPicture = $this->pictures->first();

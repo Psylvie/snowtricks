@@ -10,8 +10,6 @@
 
         <div class="row mb-4 justify-content-center">
             <div class="col-md-8">
-
-                <!-- Section pour le nom de la figure -->
                 <div class="mb-4">
                     <div class="card border-light shadow-sm">
                         <div class="card-body">
@@ -22,8 +20,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Section pour la catégorie -->
                 <div class="mb-4">
                     <div class="card border-light shadow-sm">
                         <div class="card-body">
@@ -34,8 +30,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Sections côte à côte pour Images et Vidéos -->
                 <div class="row mb-4">
                     <div class="col-md-6 mb-3">
                         <div class="card border-light shadow-sm">
@@ -47,7 +41,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="col-md-6 mb-3">
                         <div class="card border-light shadow-sm">
                             <div class="card-body">
@@ -60,8 +53,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Section pour la description -->
                 <div class="mb-4">
                     <div class="card border-light shadow-sm">
                         <div class="card-body">
@@ -71,14 +62,12 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="d-flex justify-content-end mt-4">
                     <button type="submit" class="btn btn-success">Créer le trick</button>
+                    <a href="{{ path('app_tricks_list') }}" class="btn btn-primary ms-2">Annuler</a>
                 </div>
-
                 {{ form_rest(form) }}
                 <p>{{ form_errors(form) }}</p>
-
                 {{ form_end(form) }}
             </div>
         </div>

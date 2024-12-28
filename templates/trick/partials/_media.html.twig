@@ -12,7 +12,9 @@
 			<div class="form-group bg-dark bg-opacity-75 p-3 rounded">
 				{{ form_widget(form.name, {
 					'attr': {
-						'class': 'form-control bg-transparent text-white fs-1 border-0 text-center fw-bolder '
+						'class': 'form-control bg-transparent text-white fs-1 border-0 text-center fw-bolder ',
+						'style': 'text-transform: uppercase;',
+						'oninput': "this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1)"
 					}
 				}) }}
 				{{ form_errors(form.name) }}
@@ -50,6 +52,7 @@
 </div>
 
 <div class="row mb-5">
+<div id="trick-media" class="row mb-5 d-none d-sm-flex flex-wrap justify-content-start">
 	<!--  Pictures -->
 	{% for picture in trick.pictures %}
 		<div class="col-md-2 mb-4">
@@ -112,3 +115,25 @@
 		</div>
 	{% endfor %}
 </div>
+</div>
+<div class="text-center mb-4 d-sm-none">
+	<button id="toggle-media" class="btn btn-secondary" type="button">Voir les médias</button>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleButton = document.getElementById('toggle-media');
+        const mediaSection = document.getElementById('trick-media');
+        let mediaVisible = false;
+
+        toggleButton.addEventListener('click', function () {
+            if (mediaVisible) {
+                mediaSection.classList.add('d-none');
+                toggleButton.textContent = 'Voir les médias';
+            } else {
+                mediaSection.classList.remove('d-none');
+                toggleButton.textContent = 'Masquer les médias';
+            }
+            mediaVisible = !mediaVisible;
+        });
+    });
+</script>

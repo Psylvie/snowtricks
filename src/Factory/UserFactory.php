@@ -46,6 +46,7 @@ final class UserFactory extends PersistentProxyObjectFactory
             'username' => self::faker()->unique()->userName(),
             'password' => 'password',
             'verified' => false,
+            'profileImage' => 'defaultProfile.jpg',
         ];
     }
 
@@ -58,6 +59,23 @@ final class UserFactory extends PersistentProxyObjectFactory
             $user->setPassword(
                 $this->hasher->hashPassword($user, $user->getPassword())
             );
+            $imageDirectory = __DIR__.'/../../public/uploads/profileImages';
+            $this->copyDefaultImage($imageDirectory, $user->getProfileImage());
         });
+    }
+
+    public function copyDefaultImage(string $directory, string $filename): void
+    {
+        if (!is_dir($directory)) {
+            mkdir($directory, 0777, true);
+        }
+        $defaultImagePath = __DIR__.'/../../public/uploads/profileImages/defaultProfile.jpg';
+        $imagePath = $directory.'/'.$filename;
+
+        if (file_exists($defaultImagePath)) {
+            if (!file_exists($imagePath)) {
+                copy($defaultImagePath, $imagePath);
+            }
+        }
     }
 }

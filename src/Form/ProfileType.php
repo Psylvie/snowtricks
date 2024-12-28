@@ -36,20 +36,7 @@ class ProfileType extends AbstractType
                 'label' => 'Image de profil',
                 'required' => false,
                 'mapped' => false,
-            ])
-//            ->add('password', PasswordType::class, [
-//                'label' => 'Nouveau mot de passe',
-//                'required' => false,
-//                'mapped' => false,
-//                'constraints' => [
-//                    new Assert\NotCompromisedPassword(['message' => 'Ce mot de passe a été exposé lors d\'une fuite de données']),
-//                    new Assert\PasswordStrength([
-//                        'minScore' => 4,
-//                        'message' => 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial',
-//                    ]),
-//                ],
-//            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

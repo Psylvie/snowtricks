@@ -61,6 +61,14 @@
 					</div>
 				</div>
 			</div>
+			<div class="col-md-3 mb-3 d-flex">
+				<div class="info-box p-2 border rounded bg-white w-100 text-center border-dark border-1">
+					<div class="d-flex align-items-center justify-content-center">
+						<i class="fas fa-user me-1"></i>
+						<span class="small">By: {{ trick.user.username|capitalize }}</span>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div class="mb-4">
 			{{ form_widget(form.description, {'attr': {'class': 'form-control border-dark border-2 rounded'}}) }}
@@ -163,6 +171,18 @@
 	</div>
 	<script>
         document.addEventListener('DOMContentLoaded', function () {
+            const showMediaButton = document.getElementById('show-media');
+
+            if (showMediaButton) {
+                showMediaButton.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const mediaDiv = document.getElementById('trick-media');
+                    if (mediaDiv) {
+                        mediaDiv.classList.toggle('d-none'); // Basculer la visibilité
+                    }
+                });
+            }
+
             const editImageModal = document.getElementById('editImageModal');
             if (editImageModal) {
                 editImageModal.addEventListener('show.bs.modal', function (event) {
@@ -172,6 +192,7 @@
                     pictureIdInput.value = pictureId;
                 });
             }
+
             const videoModal = document.getElementById('editVideoModal');
             if (videoModal) {
                 videoModal.addEventListener('show.bs.modal', function (event) {
@@ -186,6 +207,7 @@
                     modalVideoLink.value = videoLink;
                 });
             }
+
             // Delete Picture
             document.querySelectorAll('.delete-picture-link').forEach(link => {
                 link.addEventListener('click', function (event) {
@@ -267,4 +289,5 @@
             });
         });
 	</script>
+
 {% endblock %}

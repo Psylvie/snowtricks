@@ -1,7 +1,9 @@
 body {
-    background-color: black;
+    background-color: rgb(209, 205, 172) !important;
 }
-
+a {
+    color: black;
+}
 .btn-primary {
     background-color: black;
 }
@@ -161,6 +163,32 @@ body {
     .col-lg-2 {
         flex: 0 0 20%;
         max-width: 20%;
+    }
+}
+
+@media (max-width: 760px) {
+    .info-box {
+        font-size: 10px !important;
+        padding: 2px !important;
+    }
+
+    .info-box span {
+        font-size: 10px !important;
+        white-space: nowrap !important;
+    }
+
+    .info-box i {
+        font-size: 10px !important;
+    }
+
+    .row.mb-4.justify-content-start {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: space-between !important;
+    }
+
+    .row.mb-4.justify-content-start .col-md-3 {
+        flex: 1 1 auto !important;
     }
 }
 

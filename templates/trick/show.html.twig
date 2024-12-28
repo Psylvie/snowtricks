@@ -7,63 +7,78 @@
 		{% include 'Trick/partials/_media.html.twig' %}
 		<div class="mb-4 text-center">
 			<div class="mx-auto px-3" style="max-width: 85%;">
-				<p class="text-start m-0 text-wrap"
-				   style="word-break: break-word;">{{ trick.description|capitalize }}</p>
+				<p class="text-start m-0 text-wrap" style="word-break: break-word;">
+					{{ trick.description|capitalize }}
+				</p>
 			</div>
 		</div>
 		<div class="row justify-content-center mb-4">
 			<div class="col-md-8">
 				<div class="row mb-4 justify-content-start border-bottom border-dark pb-3">
-					<div class="col-md-3 mb-3 d-flex">
-						<div class="info-box p-2 border rounded bg-white w-100 text-center border-dark border-1">
+					<div class="d-flex flex-wrap flex-md-nowrap justify-content-between w-100">
+						<div class="info-box p-2 border rounded bg-white text-center border-dark border-1 mx-1 mb-2 flex-fill">
 							<div class="d-flex align-items-center justify-content-center">
 								<i class="fas fa-calendar-alt me-1"></i>
-								<span class="small">Création: {{ trick.createdAt|date('d/m/Y') }}</span>
+								<span class="small text-nowrap" style="font-size: 0.8rem;">
+									Création: {{ trick.createdAt|date('d/m/Y') }}
+								</span>
 							</div>
 						</div>
-					</div>
-					{% if trick.updatedAt is defined %}
-						<div class="col-md-3 mb-3 d-flex">
-							<div class="info-box p-2 border rounded bg-white w-100 text-center border-dark border-1">
+						{% if trick.updatedAt is defined %}
+							<div class="info-box p-2 border rounded bg-white text-center border-dark border-1 mx-1 mb-2 flex-fill">
 								<div class="d-flex align-items-center justify-content-center">
 									<i class="fas fa-calendar-edit me-1"></i>
-									<span class="small">Modif: {{ trick.updatedAt|date('d/m/Y') }}</span>
+									<span class="small text-nowrap" style="font-size: 0.8rem;">
+										Modif: {{ trick.updatedAt|date('d/m/Y') }}
+									</span>
 								</div>
 							</div>
-						</div>
-					{% endif %}
-					<div class="col-md-3 mb-3 d-flex">
-						<div class="info-box p-2 border rounded bg-white w-100 text-center border-dark border-1">
+						{% endif %}
+						<div class="info-box p-2 border rounded bg-white text-center border-dark border-1 mx-1 mb-2 flex-fill">
 							<div class="d-flex align-items-center justify-content-center">
 								<i class="fas fa-tag me-1"></i>
-								<span class="small">Groupe : {{ trick.category.name|capitalize }}</span>
+								<span class="small text-nowrap" style="font-size: 0.8rem;">
+									Groupe: {{ trick.category.name|capitalize }}
+								</span>
 							</div>
 						</div>
-					</div>
-					<div class="col-md-3 mb-3 d-flex">
-						<div class="info-box p-2 border rounded bg-white w-100 text-center border-dark border-1">
+						<div class="info-box p-2 border rounded bg-white text-center border-dark border-1 mx-1 mb-2 flex-fill">
 							<div class="d-flex align-items-center justify-content-center">
 								<i class="fas fa-user me-1"></i>
-								<span class="small">By {{ trick.user.username|capitalize }}</span>
+								<span class="small text-nowrap" style="font-size: 0.8rem;">
+									By: {{ trick.user.username|capitalize }}
+								</span>
 							</div>
 						</div>
 					</div>
 				</div>
+
 				{% if app.user %}
 					<div class="mb-4 border-bottom border-dark pb-3">
-						{{ form_start(commentForm, {'attr': {'class': 'comment-form'}}) }}
+						{{ form_start(commentForm, {
+							'action': path('app_comment_add', {'slug': trick.slug}),
+							'attr': {'class': 'comment-form'}
+						}) }}
 						<div class="d-flex align-items-center">
 							{{ form_widget(commentForm.content, {
 								'attr': {
 									'class': 'form-control me-2', 'placeholder': 'Votre commentaire...'
 								}
 							}) }}
-							<button type="submit" class="btn btn-primary">Leave a comment</button>
+							<button type="submit" class="btn btn-primary">Soumettre un commentaire</button>
 						</div>
 						{{ form_end(commentForm) }}
 					</div>
+				{% else %}
+					<div class="mb-4 border-bottom border-dark pb-3">
+						<div class="alert alert-info bg-white border-bottom border-dark pb-3" role="alert">
+							<p class="m-0">Vous devez être connecté pour laisser un commentaire.</p>
+							<a href="{{ path('app_login') }}" class="btn btn-primary mt-2">Se connecter</a>
+						</div>
+					</div>
 				{% endif %}
 			</div>
+
 			<div id="tricks-comments">
 				{% include 'Trick/partials/_comments_list.html.twig' %}
 			</div>
@@ -72,6 +87,11 @@
 					<button id="load-more-comments" class="btn btn-primary" data-trick-slug="{{ trick.slug }}">
 						Voir plus
 					</button>
+				</div>
+			{% endif %}
+			{% if comments is empty %}
+				<div class="d-flex justify-content-center p-2 text-muted small">
+					<em>Aucun commentaire pour le moment.</em>
 				</div>
 			{% endif %}
 			<div class="d-flex justify-content-end mb-3">

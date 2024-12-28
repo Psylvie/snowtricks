@@ -32,7 +32,7 @@ final class PictureFactory extends PersistentProxyObjectFactory
         return [
             'createdAt' => $createdAt,
             'updatedAt' => self::faker()->dateTimeBetween($createdAt, 'now'),
-            'filename' => self::faker()->unique()->word().'.jpg',
+            'filename' => 'default.jpg',
             'trick' => self::faker()->randomElement(TrickFactory::repository()->findAll()),
         ];
     }
@@ -43,20 +43,21 @@ final class PictureFactory extends PersistentProxyObjectFactory
     protected function initialize(): static
     {
         return $this->afterInstantiate(function (Picture $picture): void {
-            $imageDirectory = __DIR__.'/../../public/uploads/images';
-            $this->saveFakeImage($imageDirectory, $picture->getFilename());
+            $imageDirectory = __DIR__.'/../../public/uploads/trickPictures';
+            $this->copyDefaultImage($imageDirectory, $picture->getFilename());
         });
     }
 
-    private function saveFakeImage(string $directory, string $filename): void
+    private function copyDefaultImage(string $directory, string $getFilename): void
     {
         if (!is_dir($directory)) {
             mkdir($directory, 0777, true);
         }
+        $defaultImagePath = __DIR__.'/../../public/uploads/trickPictures/default.jpg';
+        $imagePath = $directory.'/'.$getFilename;
 
-        $imagePath = $directory.'/'.$filename;
-        $imageContent = self::faker()->image(null, 800, 600, 'snowTricks', true, true, 'Faker', true);
-
-        file_put_contents($imagePath, $imageContent);
+        if (file_exists($defaultImagePath)) {
+            copy($defaultImagePath, $imagePath);
+        }
     }
 }

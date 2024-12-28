@@ -37,6 +37,11 @@ class SecurityController extends AbstractController
         } else {
             $errorMessage = null;
         }
+//        if ($security->getUser()) {
+//			$this->addFlash('success', 'Salut ' . $lastUsername . ', tu es maintenant connecté !');
+//
+//            return $this->redirectToRoute('app_home');
+//        }
 
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
@@ -48,6 +53,7 @@ class SecurityController extends AbstractController
     #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void
     {
+		$this->addFlash('success', 'Vous êtes déconnecté avec succès.');
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
@@ -105,7 +111,9 @@ class SecurityController extends AbstractController
 
             return $this->redirectToRoute('app_login');
         }
-        $form = $this->createForm(ResetPasswordType::class);
+        $form = $this->createForm(ResetPasswordType::class, [
+            'username' => $user->getUsername(),
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

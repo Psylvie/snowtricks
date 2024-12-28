@@ -26,11 +26,12 @@ readonly class LoadMoreService
         int $offset,
         int $limit,
         string $template,
-        string $datakey): array
-    {
+        string $datakey,
+        array $criteria = []
+    ): array {
         $repository = $this->em->getRepository($entityClass);
 
-        $items = $repository->findBy([], ['createdAt' => 'DESC', 'id' => 'ASC'], $limit, $offset);
+        $items = $repository->findBy($criteria, ['createdAt' => 'DESC', 'id' => 'ASC'], $limit, $offset);
 
         return [
             'html' => $this->twig->render($template, [$datakey => $items]),

@@ -3,12 +3,12 @@
 {% block title %}SNOWTRICKS{% endblock %}
 
 {% block body %}
-	<header class="bg-dark py-5 position-relative overflow-hidden">
+	<header class="bg-dark position-relative overflow-hidden header-no-gap">
 		<div id="top" class="position-absolute top-0 start-0 w-100 h-100">
-			<img src="{{ asset('images/SnowTrick_0.png') }}" alt="Snow Tricks" class="w-100 h-100 object-fit-xl-fill"
-				 style="object-position: center;">
+			<img src="{{ asset('images/SnowTrick_0.png') }}" alt="Snow Tricks" class="w-100 h-100 img-no-gap"
+				 style="object-fit: cover; object-position: center;">
 		</div>
-		<div class="position-relative text-center z-index-2 py-5 my-5">
+		<div class="position-relative text-center z-index-2" style="padding-top: 20%; padding-bottom: 20%;">
 			<div class="bg-dark bg-opacity-50 p-3 rounded">
 				<h1 class="display-4 fw-bolder text-light">Bienvenue sur SnowTricks</h1>
 				<p class="lead fw-normal text-light">Partagez vos meilleurs tricks</p>
@@ -18,7 +18,6 @@
 			<i class="bi bi-chevron-down"></i>
 		</a>
 	</header>
-	<div id="top"></div>
 	<div id="tricks" class="container px-5 my-5">
 		<div class="row g-4">
 			<div id="tricks-list" class="row g-4">
@@ -29,7 +28,25 @@
 			</div>
 		</div>
 	</div>
-	<a href="#top" class="scroll-up">
+	<a href="#tricks" class="scroll-up" id="scroll-up" style="display: none;">
 		<i class="bi bi-chevron-up"></i>
 	</a>
+
+	<script>
+        window.addEventListener('scroll', function() {
+            const scrollUpButton = document.getElementById('scroll-up');
+            const tricksSection = document.getElementById('tricks');
+            const tricksSectionTop = tricksSection.offsetTop;
+
+            if (window.scrollY > tricksSectionTop) {
+                scrollUpButton.style.display = 'flex';
+            } else {
+                scrollUpButton.style.display = 'none';
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById('scroll-up').style.display = 'none';
+        });
+	</script>
 {% endblock %}

@@ -11,11 +11,11 @@
 			<div class="card-body">
 				<div class="d-flex justify-content-between align-items-center mb-2">
 					<h5 class="card-title mb-0 text-truncate" style="max-width: 70%;">
-						<a href="{{ path('app_trick_show', {'slug': trick.slug}) }}" class="text-decoration-none">
+						<a href="{{ path('app_trick_show', {'slug': trick.slug}) }}">
 							{{ trick.name|capitalize }}
 						</a>
 					</h5>
-					{% if is_granted('ROLE_USER') and trick.getUser == app.user %}
+					{% if is_granted('ROLE_USER') %}
 						<div class="d-flex flex-shrink-0">
 							<a href="{{ path('app_trick_edit', { 'slug': trick.slug }) }}"
 							   class="text-decoration-none me-2">

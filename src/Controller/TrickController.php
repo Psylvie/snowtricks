@@ -30,7 +30,7 @@ class TrickController extends AbstractController
         private readonly LoadMoreService $loadMoreService,
         private readonly EntityManagerInterface $em,
         private readonly MediaService $mediaService,
-        private readonly TrickRepository $trickRepository
+        private readonly CommentRepository $commentRepository
     ) {
     }
 
@@ -41,7 +41,6 @@ class TrickController extends AbstractController
     public function list(): Response
     {
         $tricks = $this->em->getRepository(Trick::class)->findBy([], ['createdAt' => 'DESC'], 15);
-        $user = $this->getUser();
 
         return $this->render('trick/list.html.twig', [
             'tricks' => $tricks,
@@ -73,10 +72,8 @@ class TrickController extends AbstractController
      */
     #[Route('/trick/{slug}', name: 'app_trick_show')]
     public function show(
-        Request $request,
         string $slug,
-        TrickRepository $trickRepository,
-        CommentRepository $commentRepository
+        TrickRepository $trickRepository
     ): Response {
         $trick = $trickRepository->findOneBy(['slug' => $slug]);
 
@@ -85,74 +82,23 @@ class TrickController extends AbstractController
 
             return $this->redirectToRoute('app_tricks_list');
         }
-
-        $limit = 3;
-        $offset = 0;
-
-        $comments = $commentRepository->findBy(
-            ['trick' => $trick],
-            ['createdAt' => 'DESC'],
-            $limit,
-            $offset
-        );
-
-        $totalComments = count($commentRepository->findBy(['trick' => $trick]));
-        $hasMore = $totalComments > ($offset + $limit);
-
         $mainPicture = $trick->getMainPicture();
         $isEditing = false;
 
+        $comments = $this->commentRepository->findBy(
+            ['trick' => $trick],
+            ['createdAt' => 'DESC'],
+            10);
+        $totalComments = $this->commentRepository->count(['trick' => $trick]);
+        $hasMore = $totalComments > 3;
         $comment = new Comment();
         $commentForm = $this->createForm(CommentType::class, $comment);
-        $commentForm->handleRequest($request);
-
-        if ($commentForm->isSubmitted() && $commentForm->isValid()) {
-            $comment->setTrick($trick);
-            $comment->setUser($this->getUser());
-
-            $this->em->persist($comment);
-            $this->em->flush();
-            $this->addFlash('success', 'Votre commentaire a été ajouté.');
-
-            return $this->redirectToRoute('app_trick_show', ['slug' => $slug]);
-        }
-
         return $this->render('trick/show.html.twig', [
             'trick' => $trick,
             'comments' => $comments,
+            'commentForm' => $commentForm->createView(),
             'mainPicture' => $mainPicture,
             'isEditing' => $isEditing,
-            'commentForm' => $commentForm->createView(),
-            'hasMore' => $hasMore,
-        ]);
-    }
-
-    /**
-     * Load more comments.
-     */
-    #[Route('/trick/{slug}/comments/load-more/{offset}', name: 'app_comment_load_more')]
-    public function loadMoreComments(string $slug, int $offset, CommentRepository $commentRepository): JsonResponse
-    {
-        $limit = 2;
-
-        $trick = $this->trickRepository->findOneBy(['slug' => $slug]);
-
-        if (!$trick) {
-            return new JsonResponse(['html' => '', 'hasMore' => false]);
-        }
-        $comments = $commentRepository->findBy(
-            ['trick' => $trick],
-            ['createdAt' => 'DESC'],
-            $limit,
-            $offset
-        );
-
-        $html = $this->renderView('trick/partials/_comments_list.html.twig', ['comments' => $comments]);
-
-        $hasMore = count($comments) === $limit;
-
-        return new JsonResponse([
-            'html' => $html,
             'hasMore' => $hasMore,
         ]);
     }
@@ -220,7 +166,6 @@ class TrickController extends AbstractController
 
             return $this->redirectToRoute('app_tricks_list');
         }
-        $this->denyAccessUnlessGranted('EDIT', $trick);
         if ($request->isXmlHttpRequest()) {
             $data = json_decode($request->getContent(), true);
 
@@ -299,6 +244,7 @@ class TrickController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $slug = $slugger->slug($trick->getName());
             $trick->setSlug($slug);
+            $trick->setUpdatedAt(new \DateTimeImmutable());
             $picturesData = $form->get('pictures')->getData();
             $videoData = $form->get('videos')->getData();
 
@@ -328,7 +274,6 @@ class TrickController extends AbstractController
     #[Route('/trick/delete/{id}', name: 'app_trick_delete', methods: ['GET'])]
     public function delete(Trick $trick): Response
     {
-        $this->denyAccessUnlessGranted('DELETE', $trick);
         $this->em->remove($trick);
         $this->em->flush();
 

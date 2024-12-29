@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\Picture;
+use Symfony\Component\Finder\Finder;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -25,6 +26,9 @@ final class PictureFactory extends PersistentProxyObjectFactory
         return Picture::class;
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function defaults(): array|callable
     {
         $createdAt = self::faker()->dateTimeThisYear();
@@ -32,7 +36,7 @@ final class PictureFactory extends PersistentProxyObjectFactory
         return [
             'createdAt' => $createdAt,
             'updatedAt' => self::faker()->dateTimeBetween($createdAt, 'now'),
-            'filename' => 'default.jpg',
+            'filename' => $this->getRandomTrickImage(),
             'trick' => self::faker()->randomElement(TrickFactory::repository()->findAll()),
         ];
     }
@@ -44,20 +48,39 @@ final class PictureFactory extends PersistentProxyObjectFactory
     {
         return $this->afterInstantiate(function (Picture $picture): void {
             $imageDirectory = __DIR__.'/../../public/uploads/trickPictures';
-            $this->copyDefaultImage($imageDirectory, $picture->getFilename());
+            $this->copyImage($imageDirectory, $picture->getFilename());
         });
     }
 
-    private function copyDefaultImage(string $directory, string $getFilename): void
+    private function copyImage(string $directory, string $filename): void
     {
         if (!is_dir($directory)) {
             mkdir($directory, 0777, true);
         }
-        $defaultImagePath = __DIR__.'/../../public/uploads/trickPictures/default.jpg';
-        $imagePath = $directory.'/'.$getFilename;
+        $sourceImagePath = __DIR__.'/../../public/uploads/TrickPictures/'.$filename;
+        $destinationImagePath = $directory.'/'.$filename;
 
-        if (file_exists($defaultImagePath)) {
-            copy($defaultImagePath, $imagePath);
+        if (file_exists($sourceImagePath)) {
+            copy($sourceImagePath, $destinationImagePath);
         }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function getRandomTrickImage(): string
+    {
+        $imageDirectory = __DIR__.'/../../public/uploads/TrickPictures';
+        $finder = new Finder();
+        $finder->files()->in($imageDirectory)->name('*.{jpg,jpeg,png,gif}');
+
+        $imageFiles = iterator_to_array($finder);
+
+        if (empty($imageFiles)) {
+            throw new \Exception('No images found in directory: '.$imageDirectory);
+        }
+        $randomImage = $imageFiles[array_rand($imageFiles)];
+
+        return $randomImage->getFilename();
     }
 }

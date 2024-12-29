@@ -33,11 +33,20 @@ final class VideoFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         $createdAt = self::faker()->dateTimeThisYear();
+
+        $videoUrls = [
+            'https://youtu.be/t705_V-RDcQ?si=WqUdk6QhVOeqzNQw',
+            'https://youtu.be/KZsvhTJ7tEk?si=ffHFtGke_6TJJvdp',
+            'https://youtu.be/Ziw-ZXFlkW4?si=clZTZ_eQhEwYLBlX',
+            'https://youtu.be/LAuDJsReHlw?si=L9bmHlgT7eh4jlzk',
+            'https://youtu.be/OoYz6w8uecE?si=SCrZxlpfFd0C975K',
+        ];
+        $videoLink = $videoUrls[array_rand($videoUrls)];
         return [
             'createdAt' => $createdAt,
             'updatedAt' => self::faker()->dateTimeBetween($createdAt, 'now'),
             'trick' => self::faker()->randomElement(TrickFactory::repository()->findAll()),
-            'videolink' => 'https://www.youtube.com/watch?v=aINlzgrOovI',
+            'videolink' => $videoLink,
         ];
     }
 

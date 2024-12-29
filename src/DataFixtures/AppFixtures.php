@@ -16,11 +16,11 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         UserFactory::createMany(25);
-        CategoryFactory::createMany(5);
+        CategoryFactory::createMany(10);
         TrickFactory::createMany(10);
-        PictureFactory::createMany(25);
-        VideoFactory::createMany(25);
-        CommentFactory::createMany(25);
+        PictureFactory::createMany(30);
+        VideoFactory::createMany(30);
+        CommentFactory::createMany(30);
 
         $manager->flush();
     }

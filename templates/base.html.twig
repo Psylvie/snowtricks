@@ -24,7 +24,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="{{ path('app_home') }}">Accueil</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ path('app_tricks_list') }}">Tricks</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ path('app_home') }}#tricks">Tricks</a></li>
                     {% if is_granted('IS_AUTHENTICATED_FULLY') %}
                         <li class="nav-item"><a class="nav-link" href="{{ path('app_user_edit') }}">Profil</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ path('app_logout') }}">Déconnexion</a></li>
@@ -70,7 +70,7 @@
                 <a href="{{ path('app_home') }}" class="text-white text-decoration-none">
                     <i class="bi bi-house-door" style="font-size: 1.5rem;"></i>
                 </a>
-                <a href="{{ path('app_tricks_list') }}" class="text-white text-decoration-none">
+                <a href="{{ path('app_home') }}#tricks" class="text-white text-decoration-none">
                     <i class="bi bi-bookmark-fill" style="font-size: 1.5rem;"></i>
                 </a>
                 {% if is_granted('IS_AUTHENTICATED_FULLY') %}

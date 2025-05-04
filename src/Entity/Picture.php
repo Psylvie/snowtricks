@@ -7,6 +7,7 @@ use App\Traits\TimestampableTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PictureRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Picture
 {
     use TimestampableTrait;

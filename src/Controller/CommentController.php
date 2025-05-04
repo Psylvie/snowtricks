@@ -6,55 +6,18 @@ use App\Entity\Comment;
 use App\Entity\Trick;
 use App\Form\CommentType;
 use App\Repository\CommentRepository;
-use App\Service\LoadMoreService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 
 class CommentController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly CommentRepository $commentRepository,
-        private readonly LoadMoreService $loadMoreService
     ) {
-    }
-
-    /**
-     * @throws SyntaxError
-     * @throws RuntimeError
-     * @throws LoaderError
-     */
-    #[Route('/trick/{slug}/comments/load-more/{offset}', name: 'app_comment_load_more')]
-    public function loadMoreComments(string $slug, int $offset): JsonResponse
-    {
-        $limit = 2;
-
-        $trick = $this->em->getRepository(Trick::class)->findOneBy(['slug' => $slug]);
-
-        if (!$trick) {
-            return new JsonResponse(['html' => '', 'hasMore' => false]);
-        }
-
-        $result = $this->loadMoreService->loadItems(
-            Comment::class,
-            $offset,
-            $limit,
-            'trick/partials/_comments_list.html.twig',
-            'comments',
-            ['trick' => $trick]
-        );
-
-        return new JsonResponse([
-            'html' => $result['html'],
-            'hasMore' => $result['hasMore'],
-        ]);
     }
 
     #[Route('/trick/{slug}/comment/add', name: 'app_comment_add', methods: ['POST'])]
@@ -64,7 +27,7 @@ class CommentController extends AbstractController
         if (!$trick) {
             $this->addFlash('danger', 'Trick introuvable');
 
-            return $this->redirectToRoute('app_tricks_list');
+            return $this->redirectToRoute('app_home');
         }
 
         $comment = new Comment();

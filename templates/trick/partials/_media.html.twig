@@ -12,7 +12,7 @@
 			<div class="form-group bg-dark bg-opacity-75 p-3 rounded">
 				{{ form_widget(form.name, {
 					'attr': {
-						'class': 'form-control bg-transparent text-white fs-1 border-0 text-center fw-bolder ',
+						'class': 'form-control bg-transparent text-white fs-1 border-0 text-center fw-bolder',
 						'style': 'text-transform: uppercase;',
 						'oninput': "this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1)"
 					}
@@ -27,113 +27,150 @@
 	</div>
 
 	{% if app.user %}
-	<div class="position-absolute top-0 end-0 p-3 z-index-2">
-		<div class="d-flex flex-row gap-2">
-			{% if isEditing and mainPicture%}
-			<a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#editMainPictureModal">
-				<i class="bi bi-pencil"></i>
-			</a>
-				<a href="#" class="btn btn-secondary delete-image-main" data-picture-id="{{ mainPicture.id }}">
-					<i class="bi bi-trash text-danger"></i>
-				</a>
-				{% else  %}
-					<a href="{{ path('app_trick_edit', { 'slug': trick.slug }) }}"
-					   class="btn btn-secondary">
+		<div class="position-absolute top-0 end-0 p-3 z-index-2">
+			<div class="d-flex flex-row gap-2">
+				{% if isEditing and mainPicture %}
+					<a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#editMainPictureModal">
+						<i class="bi bi-pencil"></i>
+					</a>
+					<a href="#" class="btn btn-secondary delete-image-main" data-picture-id="{{ mainPicture.id }}">
+						<i class="bi bi-trash text-danger"></i>
+					</a>
+				{% else %}
+					<a href="{{ path('app_trick_edit', { 'slug': trick.slug }) }}" class="btn btn-secondary">
 						<i class="bi bi-pencil"></i>
 					</a>
 					<a href="{{ path('app_trick_delete', {'id': trick.id}) }}" class="btn btn-secondary"
 					   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce trick ?');">
 						<i class="bi bi-trash text-danger"></i>
 					</a>
-			{% endif %}
+				{% endif %}
+			</div>
 		</div>
-	</div>
 	{% endif %}
 </div>
 
+<!-- for médias -->
 <div class="row mb-5">
-<div id="trick-media" class="row mb-5 d-none d-sm-flex flex-wrap justify-content-start">
-	<!--  Pictures -->
-	{% for picture in trick.pictures %}
-		<div class="col-md-2 mb-4">
-			<div class="media-card bg-dark text-light">
-				<div class="picture-container">
-					<img src="{{ asset('uploads/TrickPictures/' ~ picture.filename) }}"
-						 class="img-fluid rounded-top" alt="Image supplémentaire du trick">
-				</div>
-				{% if isEditing %}
-					<div class="media-card-footer">
-						<div class="media-actions">
-							<a href="#"
-							   class="btn btn-sm btn-secondary"
-							   data-bs-toggle="modal"
-							   data-bs-target="#editImageModal"
-							   data-picture-id="{{ picture.id }}">
-								<i class="bi bi-pencil"></i>
-							</a>
-							<a href="#" class="btn btn-secondary delete-picture-link"
-							   data-picture-id="{{ picture.id }}">
-								<i class="bi bi-trash text-danger"></i>
-							</a>
-						</div>
+	<div id="trick-media" class="row mb-5 d-none d-sm-flex flex-wrap justify-content-start">
+		<!--  Pictures -->
+		{% for picture in trick.pictures %}
+			<div class="col-md-2 mb-4">
+				<div class="media-card bg-dark text-light">
+					<div class="picture-container">
+						<img src="{{ asset('uploads/TrickPictures/' ~ picture.filename) }}"
+							 class="img-fluid rounded-top" alt="Image supplémentaire du trick">
 					</div>
-				{% endif %}
-			</div>
-		</div>
-	{% endfor %}
-	<!--  Videos -->
-	{% for video in trick.videos %}
-		<div class="col-md-2 mb-4">
-			<div class="media-card bg-dark text-light">
-				<div class="media-card-body p-0">
-					{% if video.videolink %}
-						<div class="video-embed">
-							<iframe src="{{ video.videolink }}" frameborder="0" allowfullscreen></iframe>
+					{% if isEditing %}
+						<div class="media-card-footer">
+							<div class="media-actions">
+								<a href="#" class="btn btn-sm btn-secondary" data-bs-toggle="modal"
+								   data-bs-target="#editImageModal" data-picture-id="{{ picture.id }}">
+									<i class="bi bi-pencil"></i>
+								</a>
+								<a href="#" class="btn btn-secondary delete-picture-link"
+								   data-picture-id="{{ picture.id }}">
+									<i class="bi bi-trash text-danger"></i>
+								</a>
+							</div>
 						</div>
-					{% else %}
-						<p class="text-warning">Vidéo non disponible</p>
 					{% endif %}
 				</div>
-				{% if isEditing %}
-					<div class="media-card-footer">
-						<div class="media-actions">
-							<a href="#"
-							   class="btn btn-sm btn-secondary"
-							   data-bs-toggle="modal"
-							   data-bs-target="#editVideoModal"
-							   data-video-id=" {{ video.id }}"
-							   data-video-link="{{ video.videolink }}">
-								<i class="bi bi-pencil"></i>
-							</a>
-							<a href="#" class="btn btn-secondary delete-video-link" data-video-id="{{ video.id }}">
-								<i class="bi bi-trash text-danger"></i>
-							</a>
-						</div>
-					</div>
-				{% endif %}
 			</div>
-		</div>
-	{% endfor %}
+		{% endfor %}
+		<!--  Videos -->
+		{% for video in trick.videos %}
+			<div class="col-md-2 mb-4">
+				<div class="media-card bg-dark text-light">
+					<div class="media-card-body p-0">
+						{% if video.videolink %}
+							<div class="video-embed">
+								<iframe src="{{ video.videolink }}" frameborder="0" allowfullscreen></iframe>
+							</div>
+						{% else %}
+							<p class="text-warning">Vidéo non disponible</p>
+						{% endif %}
+					</div>
+					{% if isEditing %}
+						<div class="media-card-footer">
+							<div class="media-actions">
+								<a href="#" class="btn btn-sm btn-secondary" data-bs-toggle="modal"
+								   data-bs-target="#editVideoModal" data-video-id="{{ video.id }}"
+								   data-video-link="{{ video.videolink }}">
+									<i class="bi bi-pencil"></i>
+								</a>
+								<a href="#" class="btn btn-secondary delete-video-link"
+								   data-video-id="{{ video.id }}">
+									<i class="bi bi-trash text-danger"></i>
+								</a>
+							</div>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		{% endfor %}
+	</div>
 </div>
-</div>
+<!-- for mobile -->
 <div class="text-center mb-4 d-sm-none">
-	<button id="toggle-media" class="btn btn-secondary" type="button">Voir les médias</button>
+	<label for="toggle-media" class="btn btn-secondary mb-3">Voir les médias</label>
+	<input type="checkbox" id="toggle-media" class="d-none">
+	<div id="trick-media-mobile">
+		<div class="row mb-5 d-flex flex-wrap justify-content-start">
+			{% for picture in trick.pictures %}
+				<div class="col-6 mb-4">
+					<div class="media-card bg-dark text-light">
+						<div class="picture-container">
+							<img src="{{ asset('uploads/TrickPictures/' ~ picture.filename) }}"
+								 class="img-fluid rounded-top" alt="Image supplémentaire du trick">
+						</div>
+						{% if isEditing %}
+							<div class="media-card-footer">
+								<div class="media-actions">
+									<a href="#" class="btn btn-sm btn-secondary" data-bs-toggle="modal"
+									   data-bs-target="#editImageModal" data-picture-id="{{ picture.id }}">
+										<i class="bi bi-pencil"></i>
+									</a>
+									<a href="#" class="btn btn-secondary delete-picture-link"
+									   data-picture-id="{{ picture.id }}">
+										<i class="bi bi-trash text-danger"></i>
+									</a>
+								</div>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			{% endfor %}
+			{% for video in trick.videos %}
+				<div class="col-6 mb-4">
+					<div class="media-card bg-dark text-light">
+						<div class="media-card-body p-0">
+							{% if video.videolink %}
+								<div class="video-embed">
+									<iframe src="{{ video.videolink }}" frameborder="0" allowfullscreen></iframe>
+								</div>
+							{% else %}
+								<p class="text-warning">Vidéo non disponible</p>
+							{% endif %}
+						</div>
+						{% if isEditing %}
+							<div class="media-card-footer">
+								<div class="media-actions">
+									<a href="#" class="btn btn-sm btn-secondary" data-bs-toggle="modal"
+									   data-bs-target="#editVideoModal" data-video-id="{{ video.id }}"
+									   data-video-link="{{ video.videolink }}">
+										<i class="bi bi-pencil"></i>
+									</a>
+									<a href="#" class="btn btn-secondary delete-video-link"
+									   data-video-id="{{ video.id }}">
+										<i class="bi bi-trash text-danger"></i>
+									</a>
+								</div>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const toggleButton = document.getElementById('toggle-media');
-        const mediaSection = document.getElementById('trick-media');
-        let mediaVisible = false;
-
-        toggleButton.addEventListener('click', function () {
-            if (mediaVisible) {
-                mediaSection.classList.add('d-none');
-                toggleButton.textContent = 'Voir les médias';
-            } else {
-                mediaSection.classList.remove('d-none');
-                toggleButton.textContent = 'Masquer les médias';
-            }
-            mediaVisible = !mediaVisible;
-        });
-    });
-</script>

@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\User;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -11,15 +12,12 @@ use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
  */
 final class UserFactory extends PersistentProxyObjectFactory
 {
+    private const SOURCE_PROFILE_IMAGE_DIRECTORY = __DIR__.'/../../public/imageProfile';
+    private const DESTINATION_PROFILE_IMAGE_DIRECTORY = __DIR__.'/../../public/uploads/profileImages';
     private UserPasswordHasherInterface $hasher;
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
-     * @todo inject services if required
-     */
     public function __construct(
-        UserPasswordHasherInterface $hasher
+        UserPasswordHasherInterface $hasher,
     ) {
         $this->hasher = $hasher;
         parent::__construct();
@@ -30,11 +28,6 @@ final class UserFactory extends PersistentProxyObjectFactory
         return User::class;
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
-     * @todo add your default values here
-     */
     protected function defaults(): array|callable
     {
         $createdAt = self::faker()->dateTimeThisYear();
@@ -44,38 +37,47 @@ final class UserFactory extends PersistentProxyObjectFactory
             'updatedAt' => self::faker()->dateTimeBetween($createdAt, 'now'),
             'email' => self::faker()->unique()->email(),
             'username' => self::faker()->unique()->userName(),
-            'password' => 'password',
+            'password' => 'password123',
             'verified' => false,
-            'profileImage' => 'defaultProfile.jpg',
+            'profileImage' => self::getRandomProfileImageFilename(),
         ];
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
     protected function initialize(): static
     {
         return $this->afterInstantiate(function (User $user): void {
             $user->setPassword(
                 $this->hasher->hashPassword($user, $user->getPassword())
             );
-            $imageDirectory = __DIR__.'/../../public/uploads/profileImages';
-            $this->copyDefaultImage($imageDirectory, $user->getProfileImage());
+            $this->copyProfileImage(self::DESTINATION_PROFILE_IMAGE_DIRECTORY, $user->getProfileImage());
         });
     }
 
-    public function copyDefaultImage(string $directory, string $filename): void
+    private function copyProfileImage(string $directory, string $filename): void
     {
         if (!is_dir($directory)) {
             mkdir($directory, 0777, true);
         }
-        $defaultImagePath = __DIR__.'/../../public/uploads/profileImages/defaultProfile.jpg';
-        $imagePath = $directory.'/'.$filename;
+        $sourceImagePath = self::SOURCE_PROFILE_IMAGE_DIRECTORY.'/'.$filename;
+        $destinationImagePath = $directory.'/'.$filename;
 
-        if (file_exists($defaultImagePath)) {
-            if (!file_exists($imagePath)) {
-                copy($defaultImagePath, $imagePath);
-            }
+        if (file_exists($sourceImagePath)) {
+            copy($sourceImagePath, $destinationImagePath);
         }
+    }
+
+    private static function getRandomProfileImageFilename(): string
+    {
+        $finder = new Finder();
+        $finder->files()->in(self::SOURCE_PROFILE_IMAGE_DIRECTORY)->name('/\.(jpg|jpeg|png|gif)$/i');
+
+        $imageFiles = iterator_to_array($finder);
+
+        if (empty($imageFiles)) {
+            return 'defaultProfile.jpg';
+        }
+        $randomImage = $imageFiles[array_rand($imageFiles)];
+
+        return $randomImage->getFilename();
     }
 }

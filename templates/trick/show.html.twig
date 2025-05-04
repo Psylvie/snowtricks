@@ -79,14 +79,20 @@
 				{% endif %}
 			</div>
 
+			<div class="col-md-7">
 			<div id="tricks-comments">
 				{% include 'Trick/partials/_comments_list.html.twig' %}
 			</div>
+			</div>
 			{% if hasMore %}
 				<div class="text-center mt-4">
-					<button id="load-more-comments" class="btn btn-primary" data-trick-slug="{{ trick.slug }}">
+					<a href="{{ path('app_trick_show', {
+						slug: trick.slug,
+						page: app.request.query.get('page')|default(1) + 1
+					}) }}"
+					   class="btn btn-primary">
 						Voir plus
-					</button>
+					</a>
 				</div>
 			{% endif %}
 			{% if comments is empty %}
@@ -95,7 +101,7 @@
 				</div>
 			{% endif %}
 			<div class="d-flex justify-content-end mb-3">
-				<a href="{{ path('app_tricks_list') }}" class="btn btn-secondary" data-trick-slug="{{ trick.slug }}">Retour</a>
+				<a href="{{ path('app_home') }}#tricks" class="btn btn-secondary" data-trick-slug="{{ trick.slug }}">Retour</a>
 			</div>
 		</div>
 	</div>

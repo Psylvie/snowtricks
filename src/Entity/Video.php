@@ -7,6 +7,7 @@ use App\Traits\TimestampableTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: VideoRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Video
 {
     use TimestampableTrait;

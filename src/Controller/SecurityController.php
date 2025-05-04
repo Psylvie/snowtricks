@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Form\ForgotPasswordType;
 use App\Form\ResetPasswordType;
 use App\Repository\UserRepository;
@@ -37,11 +38,6 @@ class SecurityController extends AbstractController
         } else {
             $errorMessage = null;
         }
-//        if ($security->getUser()) {
-//			$this->addFlash('success', 'Salut ' . $lastUsername . ', tu es maintenant connecté !');
-//
-//            return $this->redirectToRoute('app_home');
-//        }
 
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
@@ -53,13 +49,12 @@ class SecurityController extends AbstractController
     #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void
     {
-		$this->addFlash('success', 'Vous êtes déconnecté avec succès.');
+        $this->addFlash('success', 'Vous êtes déconnecté avec succès.');
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
     /**
      * @throws \Exception
-     * @throws TransportExceptionInterface
      */
     #[Route('/forgotten-password', name: 'app_forgotten_password')]
     public function forgottenPassword(Request $request, UserRepository $userRepository): Response
@@ -125,6 +120,36 @@ class SecurityController extends AbstractController
             $this->addFlash('success', 'Mot de passe modifié avec succés !');
 
             return $this->redirectToRoute('app_login');
+        }
+
+        return $this->render('security/reset_password.html.twig', [
+            'resetForm' => $form->createView(),
+        ]);
+    }
+
+    #[IsGranted('IS_AUTHENTICATED')]
+    #[Route('/profile/change-password', name: 'app_change_password')]
+    public function changePassword(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $em): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $form = $this->createForm(ResetPasswordType::class, [
+            'username' => $user->getUsername(),
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $plainPassword = $form->get('plainPassword')->getData();
+
+            $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+            $user->setPassword($hashedPassword);
+
+            $em->flush();
+
+            $this->addFlash('success', 'Mot de passe mis à jour avec succès.');
+
+            return $this->redirectToRoute('app_home');
         }
 
         return $this->render('security/reset_password.html.twig', [

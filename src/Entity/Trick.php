@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[UniqueEntity(fields: ['name'], message: 'Ce nom est déja utilisé')]
 #[ORM\Entity(repositoryClass: TrickRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Trick
 {
     use TimestampableTrait;

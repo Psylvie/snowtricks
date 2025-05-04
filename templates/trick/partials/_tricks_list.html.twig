@@ -1,6 +1,6 @@
 {% for trick in tricks %}
 	<div class="col-12 col-sm-6 col-md-4 col-lg-2 mb-4">
-		<div class="card h-100">
+		<div class="card h-100 shadow-sm border-0 rounded-3 transition">
 			{% set mainPicture = trick.getPictures|first %}
 			{% if mainPicture %}
 				<img src="{{ asset('uploads/TrickPictures/' ~ mainPicture.filename) }}" class="card-img-top"
@@ -10,8 +10,8 @@
 			{% endif %}
 			<div class="card-body">
 				<div class="d-flex justify-content-between align-items-center mb-2">
-					<h5 class="card-title mb-0 text-truncate" style="max-width: 70%;">
-						<a href="{{ path('app_trick_show', {'slug': trick.slug}) }}">
+					<h5 class="card-title mb-0" style="max-width: 70%; word-break: break-word; font-size: 0.9rem;">
+						<a href="{{ path('app_trick_show', {'slug': trick.slug}) }}" class="text-decoration-none text-dark">
 							{{ trick.name|capitalize }}
 						</a>
 					</h5>

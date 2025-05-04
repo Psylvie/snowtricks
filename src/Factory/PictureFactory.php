@@ -11,11 +11,9 @@ use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
  */
 final class PictureFactory extends PersistentProxyObjectFactory
 {
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
-     * @todo inject services if required
-     */
+    private const SOURCE_IMAGE_DIRECTORY = __DIR__.'/../../public/images';
+    private const DESTINATION_IMAGE_DIRECTORY = __DIR__.'/../../public/uploads/TrickPictures';
+
     public function __construct()
     {
         parent::__construct();
@@ -36,14 +34,11 @@ final class PictureFactory extends PersistentProxyObjectFactory
         return [
             'createdAt' => $createdAt,
             'updatedAt' => self::faker()->dateTimeBetween($createdAt, 'now'),
-            'filename' => $this->getRandomTrickImage(),
+            'filename' => self::getRandomImageFilename(),
             'trick' => self::faker()->randomElement(TrickFactory::repository()->findAll()),
         ];
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
     protected function initialize(): static
     {
         return $this->afterInstantiate(function (Picture $picture): void {
@@ -57,7 +52,7 @@ final class PictureFactory extends PersistentProxyObjectFactory
         if (!is_dir($directory)) {
             mkdir($directory, 0777, true);
         }
-        $sourceImagePath = __DIR__.'/../../public/uploads/TrickPictures/'.$filename;
+        $sourceImagePath = self::SOURCE_IMAGE_DIRECTORY.'/'.$filename;
         $destinationImagePath = $directory.'/'.$filename;
 
         if (file_exists($sourceImagePath)) {
@@ -68,16 +63,15 @@ final class PictureFactory extends PersistentProxyObjectFactory
     /**
      * @throws \Exception
      */
-    private function getRandomTrickImage(): string
+    private static function getRandomImageFilename(): string
     {
-        $imageDirectory = __DIR__.'/../../public/uploads/TrickPictures';
         $finder = new Finder();
-        $finder->files()->in($imageDirectory)->name('*.{jpg,jpeg,png,gif}');
+        $finder->files()->in(self::SOURCE_IMAGE_DIRECTORY)->name('/\.(jpg|jpeg|png|gif)$/i');
 
         $imageFiles = iterator_to_array($finder);
 
         if (empty($imageFiles)) {
-            throw new \Exception('No images found in directory: '.$imageDirectory);
+            throw new \Exception('No images found in directory: '.self::SOURCE_IMAGE_DIRECTORY);
         }
         $randomImage = $imageFiles[array_rand($imageFiles)];
 

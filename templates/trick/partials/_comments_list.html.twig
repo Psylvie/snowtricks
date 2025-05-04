@@ -1,28 +1,23 @@
-<div class="mb-4">
+<div class="mb-2">
 	<ul class="list-unstyled">
 		{% for comment in comments %}
-			<li class="d-flex align-items-center mb-3 p-2">
-				<div class="me-3 d-flex align-items-center">
+			<li class="d-flex align-items-start mb-3 p-2">
+				<div class="me-3">
 					{% if comment.user.profileImage %}
 						<img src="{{ asset('uploads/profileImages/' ~ comment.user.profileImage) }}"
 							 alt="Image de profil de {{ comment.user.username }}" class="rounded-circle"
-							 style="width: 50px; height: 50px;">
+							 style="width: 50px; height: 50px; object-fit: cover;">
 					{% else %}
 						<img src="{{ asset('uploads/profileImages/avatar.png') }}"
 							 alt="Image de profil par défaut" class="rounded-circle"
-							 style="width: 50px; height: 50px;">
+							 style="width: 50px; height: 50px; object-fit: cover;">
 					{% endif %}
 				</div>
 				<div class="flex-grow-1 border border-dark pb-3 p-2 rounded">
-					<strong>{{ comment.user.username|capitalize }}</strong> le {{ comment.createdAt|date('d/m/Y') }}
-					- {{ comment.content|capitalize }}
+					<h6 class="mb-1 fw-bold">{{ comment.user.username|capitalize }} <small class="text-muted">le {{ comment.createdAt|date('d/m/Y') }}</small></h6>
+					<p class="mb-0">{{ comment.content|capitalize }}</p>
 				</div>
 			</li>
 		{% endfor %}
 	</ul>
-{#	{% if comments is empty %}#}
-{#		<div class="d-flex justify-content-center p-2 text-muted small">#}
-{#			<em>Aucun commentaire pour le moment.</em>#}
-{#		</div>#}
-{#	{% endif %}#}
 </div>

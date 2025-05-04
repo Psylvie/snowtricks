@@ -12,9 +12,19 @@ trait TimestampableTrait
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    public function __construct()
+    #[ORM\PrePersist]
+    public function initializeTimestampableTrait(): void
     {
-        $this->createdAt = new \DateTimeImmutable();
+        $now = new \DateTimeImmutable();
+        $this->setCreatedAt($now);
+        $this->setUpdatedAt($now);
+
+    }
+
+    #[ORM\PreUpdate]
+    public function updateTimestampable(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     public function getCreatedAt(): ?\DateTimeImmutable

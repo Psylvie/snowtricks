@@ -7,11 +7,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class PictureService
 {
-    private ParameterBagInterface $params;
-
-    public function __construct(ParameterBagInterface $params)
-    {
-        $this->params = $params;
+    public function __construct(
+        private ParameterBagInterface $params,
+    ) {
     }
 
     /**
@@ -24,10 +22,16 @@ class PictureService
         ?int $height = 250): string
     {
         $extension = $picture->guessExtension();
+        $mimeType = $picture->getMimeType();
         $validExtensions = ['jpeg', 'jpg', 'png', 'webp'];
+        $validMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
 
         if (!in_array($extension, $validExtensions)) {
             throw new \InvalidArgumentException('Invalid file format');
+        }
+
+        if (!in_array($mimeType, $validMimeTypes)) {
+            throw new \InvalidArgumentException('Type MIME de fichier invalide.');
         }
 
         $fileName = md5(uniqid()).'.'.$extension;

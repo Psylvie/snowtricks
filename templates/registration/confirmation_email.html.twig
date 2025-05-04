@@ -1,12 +1,35 @@
-
-<h1>Hi! Please confirm your email!</h1>
-
-<p>
-    Please confirm your email address by clicking the following link: <br><br>
-    <a href="{{ signedUrl|raw }}">Confirm my Email</a>.
-    This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
-</p>
-
-<p>
-    Cheers!
-</p>
+{% block body %}
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin: 0; padding: 0; background-color: #f0f8ff;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
+                    <tr>
+                        <td style="padding: 20px; text-align: center; background-color: #20b2aa; color: #ffffff;">
+                            <h1 style="margin: 0; font-size: 30px; font-family: 'Comic Sans MS', cursive;">Confirme ton e-mail !</h1>
+                            <p style="font-size: 18px; margin-top: 10px;">Bienvenue à bord !</p>
+                            <img src="https://media.giphy.com/media/xUOxfgwY8TvDQihjxK/giphy.gif" alt="Confirmation Email" style="max-width: 100%; height: auto; margin-top: 15px;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 20px; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5;">
+                            <p>Salut,</p>
+                            <p>Merci de t'être inscrit ! Pour activer ton compte, clique sur le bouton ci-dessous pour confirmer ton adresse e-mail :</p>
+                            <p style="text-align: center;">
+                                <a href="{{ signedUrl|raw }}" style="display: inline-block; padding: 15px 30px; margin-top: 20px; background-color: #3cb371; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 18px;">Confirmer mon e-mail</a>
+                            </p>
+                            <p style="color: #3cb371; font-weight: bold;">Ce lien expirera dans {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.</p>
+                            <p>Si tu n'as pas créé de compte, tu peux ignorer cet e-mail.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 20px; text-align: center; font-family: Arial, sans-serif; font-size: 14px; color: #777777;">
+                            <p style="font-weight: bold;">N'hésite pas à explorer toutes les fonctionnalités une fois ton compte confirmé !</p>
+                            <p>Besoin d'aide ? Contacte-nous à <a href="mailto:peuzin.sylvie.sp@gmail.com" style="color: #20b2aa;">support@snowtricks.com</a>.</p>
+                            <p style="margin-top: 20px;">&copy; 2024 SNOWTRICKS. Tous droits réservés. 🎉</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+{% endblock %}

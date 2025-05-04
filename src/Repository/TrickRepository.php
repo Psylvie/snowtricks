@@ -15,4 +15,24 @@ class TrickRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Trick::class);
     }
+
+    public function findPaginated($page = 1, $limit = 15): array
+    {
+        $offset = ($page - 1) * $limit;
+
+        return $this->createQueryBuilder('t')
+            ->orderBy('t.createdAt', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countAllTricks(): int
+    {
+        return $this->createQueryBuilder('t')
+            ->select('COUNT(t.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

@@ -59,7 +59,6 @@ class UserController extends AbstractController
                 $fileName = $pictureService->addPicture($profileImage, 'ProfileImages', 250, 250, 'profileImages');
                 $user->setProfileImage($fileName);
             }
-            $user->setUpdatedAt(new \DateTimeImmutable());
             $this->em->persist($user);
             $this->em->flush();
             $this->addFlash('success', 'Profil mis à jour avec succès !');
@@ -70,26 +69,5 @@ class UserController extends AbstractController
         return $this->render('user/profileEdit.html.twig', [
             'form' => $form->createView(),
         ]);
-    }
-
-    #[Route('/user/delete', name: 'app_user_delete')]
-    public function delete(Request $request): Response
-    {
-        $user = $this->getUser();
-        if (!$user instanceof UserInterface) {
-            throw new AccessDeniedException('Vous devez être connecté pour supprimer votre profil.');
-        }
-
-        $token = $request->request->get('_token');
-        if (!$this->isCsrfTokenValid('delete'.$user->getId(), $token)) {
-            throw new AccessDeniedException('Le jeton CSRF est invalide.');
-        }
-
-        $this->em->remove($user);
-        $this->em->flush();
-
-        $this->addFlash('success', 'Votre profil a été supprimé avec succès.');
-
-        return $this->redirectToRoute('app_logout');
     }
 }

@@ -1,5 +1,5 @@
 body {
-    background-color: rgb(209, 205, 172) !important;
+    background-color: rgba(66, 75, 81, 0.62) !important;
 }
 a {
     color: black;
@@ -189,6 +189,12 @@ a {
 
     .row.mb-4.justify-content-start .col-md-3 {
         flex: 1 1 auto !important;
+    }
+    #trick-media-mobile {
+        display: none;
+    }
+    #toggle-media:checked + #trick-media-mobile {
+        display: block;
     }
 }
 

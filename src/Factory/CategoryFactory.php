@@ -10,11 +10,6 @@ use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
  */
 final class CategoryFactory extends PersistentProxyObjectFactory
 {
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
-     * @todo inject services if required
-     */
     public function __construct()
     {
         parent::__construct();
@@ -25,28 +20,31 @@ final class CategoryFactory extends PersistentProxyObjectFactory
         return Category::class;
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
-     * @todo add your default values here
-     */
     protected function defaults(): array|callable
     {
-        $createdAt = self::faker()->dateTimeThisYear();
-
         return [
-            'createdAt' => $createdAt,
-            'updatedAt' => self::faker()->dateTimeBetween($createdAt, 'now'),
-            'name' => self::faker()->word(),
+            'name' => self::faker()->unique()->randomElement(self::getCategoryNames()),
         ];
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
     protected function initialize(): static
     {
-        return $this
-        ;
+        return $this;
+    }
+
+    public static function getCategoryNames(): array
+    {
+        return [
+            'Grabs',
+            'Spins',
+            'Flips',
+            'Slides',
+            'Rotations',
+            'Inverts',
+            'Butters',
+            'Jumps',
+            'Tweaks',
+            'Rails',
+        ];
     }
 }

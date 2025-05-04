@@ -3,7 +3,7 @@
 {% block title %}Éditer le Trick{% endblock %}
 
 {% block body %}
-	<div class="container my-5 bg-light">
+	<div class="container my-5 bg-light" data-trick-slug="{{ trick.slug }}">
 	{{ form_start(form) }}
 	{% include 'Trick/partials/_media.html.twig' with {'form': form}%}
 	<div class="row justify-content-center mb-4">
@@ -74,26 +74,26 @@
 			{{ form_widget(form.description, {'attr': {'class': 'form-control border-dark border-2 rounded'}}) }}
 		</div>
 		<div class="row mb-4">
-			<div class="col-md-3 mb-3">
-				<div class="input-group">
-					{{ form_widget(form.category, {'attr': {'class': 'form-select btn-secondary'}}) }}
-				</div>
-			</div>
-			<div class="col-md-9 d-flex align-items-center justify-content-end mb-3">
-				<div class="d-flex">
-					<a href="{{ path('app_trick_delete', {'id': trick.id}) }}"
-					   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce trick ?');">
-						<button type="button" class="btn btn-danger me-2">Supprimer</button>
-					</a>
-					<button type="submit" class="btn btn-success">Sauvegarder</button>
-				</div>
-			</div>
-		</div>
+    <div class="col-6 mb-3 d-flex justify-content-end col-md-3">
+        <div class="input-group w-100">
+            {{ form_widget(form.category, {'attr': {'class': 'form-select btn-secondary'}}) }}
+        </div>
+    </div>
+    <div class="col-12 mb-3 d-flex justify-content-center justify-content-md-end col-md-9">
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_trick_delete', {'id': trick.id}) }}"
+               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce trick ?');">
+                <button type="button" class="btn btn-danger me-2">Supprimer</button>
+            </a>
+            <button type="submit" class="btn btn-success">Sauvegarder</button>
+        </div>
+    </div>
+</div>
 		<p>{{ form_errors(form) }}</p>
 		{{ form_end(form) }}
 
 		<div class="d-flex justify-content-end mb-3">
-			<a href="{{ path('app_tricks_list') }}" class="btn btn-secondary">Retour</a>
+			<a href="{{ path('app_home') }}#tricks" class="btn btn-secondary">Retour</a>
 		</div>
 		<!-- Modal main picture -->
 		<div class="modal fade" id="editMainPictureModal" tabindex="-1" aria-labelledby="editMainPictureModalLabel"
@@ -169,125 +169,7 @@
 			</div>
 		</div>
 	</div>
-	<script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const showMediaButton = document.getElementById('show-media');
-
-            if (showMediaButton) {
-                showMediaButton.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    const mediaDiv = document.getElementById('trick-media');
-                    if (mediaDiv) {
-                        mediaDiv.classList.toggle('d-none'); // Basculer la visibilité
-                    }
-                });
-            }
-
-            const editImageModal = document.getElementById('editImageModal');
-            if (editImageModal) {
-                editImageModal.addEventListener('show.bs.modal', function (event) {
-                    const button = event.relatedTarget;
-                    const pictureId = button.getAttribute('data-picture-id');
-                    const pictureIdInput = document.getElementById('pictureId');
-                    pictureIdInput.value = pictureId;
-                });
-            }
-
-            const videoModal = document.getElementById('editVideoModal');
-            if (videoModal) {
-                videoModal.addEventListener('show.bs.modal', function (event) {
-                    const button = event.relatedTarget;
-                    const videoId = button.getAttribute('data-video-id');
-                    const videoLink = button.getAttribute('data-video-link');
-
-                    const modalVideoId = videoModal.querySelector('#videoId');
-                    const modalVideoLink = videoModal.querySelector('#newVideoLink');
-
-                    modalVideoId.value = videoId;
-                    modalVideoLink.value = videoLink;
-                });
-            }
-
-            // Delete Picture
-            document.querySelectorAll('.delete-picture-link').forEach(link => {
-                link.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    const pictureId = this.getAttribute('data-picture-id');
-                    if (confirm('Êtes-vous sûr de vouloir supprimer cette image ?')) {
-                        fetch('{{ path('app_trick_edit', {slug: trick.slug}) }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            body: JSON.stringify({delete_picture_id: pictureId})
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    location.reload();
-                                } else {
-                                    alert('Erreur lors de la suppression de l\'image.');
-                                }
-                            });
-                    }
-                });
-            });
-
-            // Delete vidéos
-            document.querySelectorAll('.delete-video-link').forEach(link => {
-                link.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    const videoId = this.getAttribute('data-video-id');
-                    if (confirm('Êtes-vous sûr de vouloir supprimer cette vidéo ?')) {
-                        fetch('{{ path('app_trick_edit', {slug: trick.slug}) }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            body: JSON.stringify({delete_video_id: videoId})
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    location.reload();
-                                } else {
-                                    alert('Erreur lors de la suppression de la vidéo.');
-                                }
-                            });
-                    }
-                });
-            });
-
-            // Delete main picture
-            document.querySelectorAll('.delete-image-main').forEach(button => {
-                button.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    const pictureId = this.getAttribute('data-picture-id');
-                    if (confirm('Êtes-vous sûr de vouloir supprimer cette image principale ?')) {
-                        fetch('{{ path('app_trick_edit', { slug: trick.slug }) }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest',
-                            },
-                            body: JSON.stringify({
-                                delete_picture_id: pictureId,
-                            }),
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    location.reload();
-                                } else {
-                                    alert('Erreur lors de la suppression de l\'image principale.');
-                                }
-                            });
-                    }
-                });
-            });
-        });
-	</script>
-
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('js/trick_edit.js') }}"></script>
 {% endblock %}

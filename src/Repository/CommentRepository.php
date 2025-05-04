@@ -16,28 +16,32 @@ class CommentRepository extends ServiceEntityRepository
         parent::__construct($registry, Comment::class);
     }
 
-    //    /**
-    //     * @return Comment[] Returns an array of Comment objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /*
+     * Methode pour la pagination des commentaires
+     */
+    public function findPaginatedComments(int $page = 1, int $limit = 10, int $trickId)
+    {
+        $queryBuilder = $this->createQueryBuilder('c')
+            ->where('c.trick = :trick')
+            ->setParameter('trick', $trickId)
+            ->orderBy('c.createdAt', 'DESC');
 
-    //    public function findOneBySomeField($value): ?Comment
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $offset = ($page - 1) * $limit;
+
+        return $queryBuilder
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countPaginatedComments(int $trickId): int
+    {
+        return (int) $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.trick = :trick')
+            ->setParameter('trick', $trickId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

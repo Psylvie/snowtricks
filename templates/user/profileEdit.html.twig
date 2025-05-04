@@ -60,33 +60,12 @@
                             </div>
                             {{ form_end(form) }}
                             <div class="d-grid gap-2 mt-4">
-                                <a href="{{ path('app_forgotten_password') }}" class="btn btn-primary">Changer le mot de passe</a>
+                                <a href="{{ path('app_change_password') }}" class="btn btn-primary">Changer le mot de passe</a>
                             </div>
-                            <button type="button" class="btn btn-danger mt-3 w-100" data-bs-toggle="modal" data-bs-target="#deleteModal">Supprimer le profil</button>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
     </main>
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Êtes-vous sûr de vouloir supprimer votre profil ? Cette action est irréversible.
-                </div>
-                <div class="modal-footer">
-                    <form method="post" action="{{ path('app_user_delete') }}">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ app.user.id) }}">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-danger">Supprimer</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 {% endblock %}

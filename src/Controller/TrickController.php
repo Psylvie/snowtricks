@@ -3,69 +3,29 @@
 namespace App\Controller;
 
 use App\Entity\Comment;
-use App\Entity\Picture;
 use App\Entity\Trick;
-use App\Entity\Video;
 use App\Form\CommentType;
 use App\Form\TrickType;
 use App\Repository\CommentRepository;
 use App\Repository\TrickRepository;
-use App\Service\LoadMoreService;
 use App\Service\MediaService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 
 class TrickController extends AbstractController
 {
     public function __construct(
-        private readonly LoadMoreService $loadMoreService,
         private readonly EntityManagerInterface $em,
         private readonly MediaService $mediaService,
-        private readonly CommentRepository $commentRepository
+        private readonly CommentRepository $commentRepository,
     ) {
     }
 
-    /**
-     * List all tricks.
-     */
-    #[Route('/tricks', name: 'app_tricks_list')]
-    public function list(): Response
-    {
-        $tricks = $this->em->getRepository(Trick::class)->findBy([], ['createdAt' => 'DESC'], 15);
-
-        return $this->render('trick/list.html.twig', [
-            'tricks' => $tricks,
-        ]);
-    }
-
-    /**
-     * button to load more tricks.
-     *
-     * @throws SyntaxError
-     * @throws RuntimeError
-     * @throws LoaderError
-     */
-    #[Route('/tricks/load-more/{offset}', name: 'app_trick_load_more')]
-    public function loadMore(int $offset): JsonResponse
-    {
-        $data = $this->loadMoreService->loadItems(
-            Trick::class,
-            $offset,
-            5,
-            'trick/partials/_tricks_list.html.twig',
-            'tricks');
-
-        return new JsonResponse($data);
-    }
 
     /**
      * Show a trick.
@@ -73,26 +33,26 @@ class TrickController extends AbstractController
     #[Route('/trick/{slug}', name: 'app_trick_show')]
     public function show(
         string $slug,
-        TrickRepository $trickRepository
+        TrickRepository $trickRepository,
+        Request $request,
     ): Response {
         $trick = $trickRepository->findOneBy(['slug' => $slug]);
 
         if (!$trick) {
             $this->addFlash('error', 'Trick introuvable.');
 
-            return $this->redirectToRoute('app_tricks_list');
+            return $this->redirectToRoute('app_home');
         }
         $mainPicture = $trick->getMainPicture();
         $isEditing = false;
 
-        $comments = $this->commentRepository->findBy(
-            ['trick' => $trick],
-            ['createdAt' => 'DESC'],
-            10);
-        $totalComments = $this->commentRepository->count(['trick' => $trick]);
-        $hasMore = $totalComments > 3;
-        $comment = new Comment();
-        $commentForm = $this->createForm(CommentType::class, $comment);
+        $page = $request->query->getInt('page', 1);
+        $comments = $this->commentRepository->findPaginatedComments($page, 10, $trick->getId());
+        $totalComments = $this->commentRepository->countPaginatedComments($trick->getId());
+
+        $hasMore = $totalComments > ($page * 10);
+        $commentForm = $this->createForm(CommentType::class, new Comment());
+
         return $this->render('trick/show.html.twig', [
             'trick' => $trick,
             'comments' => $comments,
@@ -134,12 +94,14 @@ class TrickController extends AbstractController
             $pictures = $trickForm->get('pictures')->getData();
             $this->mediaService->handlePictures($trick, $pictures);
 
+            $videoData = $trickForm->get('videos')->getData();
+            $this->mediaService->handleVideos($trick, $videoData);
+
             $this->em->persist($trick);
             $this->em->flush();
-
             $this->addFlash('success', 'Le trick a bien été ajouté.');
 
-            return $this->redirectToRoute('app_tricks_list');
+            return $this->redirectToRoute('app_home');
         }
 
         return $this->render('trick/create.html.twig', [
@@ -154,86 +116,31 @@ class TrickController extends AbstractController
      * @throws \Exception
      */
     #[Route('/trick/edit/{slug}', name: 'app_trick_edit')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function edit(
         Request $request,
         string $slug,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
     ): Response {
-        $response = ['success' => false];
         $trick = $this->em->getRepository(Trick::class)->findOneBy(['slug' => $slug]);
         if (!$trick) {
             $this->addFlash('error', 'Trick introuvable.');
 
-            return $this->redirectToRoute('app_tricks_list');
+            return $this->redirectToRoute('app_home');
         }
         if ($request->isXmlHttpRequest()) {
-            $data = json_decode($request->getContent(), true);
-
-            if (!empty($data['delete_picture_id'])) {
-                $picture = $this->em->getRepository(Picture::class)->find($data['delete_picture_id']);
-                if ($picture) {
-                    $this->mediaService->deletePicture($picture);
-
-                    if ($picture === $trick->getMainPicture()) {
-                        $remainingPictures = $trick->getPictures();
-                        $newMainPicture = $remainingPictures->first();
-                        $trick->setMainPicture($newMainPicture);
-                        $this->em->flush();
-                    }
-
-                    $response['success'] = true;
-                }
-            }
-
-            if (!empty($data['delete_video_id'])) {
-                $video = $this->em->getRepository(Video::class)->find($data['delete_video_id']);
-                if ($video) {
-                    $response['success'] = $this->mediaService->deleteVideo($video);
-                }
-            }
-
-            return new JsonResponse($response);
+            return $this->mediaService->handleDeletion($request, $trick);
         }
-        $pictureId = $request->request->get('pictureId');
-        $newImageFile = $request->files->get('newImage');
-        $isMainPicture = $request->request->get('isMainPicture');
-
-        if ($newImageFile && $pictureId) {
-            $picture = $this->em->getRepository(Picture::class)->find($pictureId);
-
-            if ($picture) {
-                try {
-                    $this->mediaService->updatePicture($picture, $newImageFile);
-
-                    if ($isMainPicture) {
-                        $trick->setMainPicture($picture);
-                        $this->em->flush();
-                    }
-
-                    $this->addFlash('success', 'Image mise à jour avec succès !');
-                } catch (\Exception $e) {
-                    $this->addFlash('error', 'Erreur lors de la mise à jour de l\'image : '.$e->getMessage());
-                }
-            } else {
-                $this->addFlash('error', 'Image introuvable.');
+        try {
+            $this->mediaService->handleExistingMediaUpdates($request, $trick);
+            if ($request->request->get('newImage') && $request->request->get('pictureId')) {
+                $this->addFlash('success', 'Image mise à jour avec succès !');
             }
-        }
-
-        $videoId = $request->request->get('videoId');
-        $newVideoLink = $request->request->get('newVideoLink');
-        if ($newVideoLink) {
-            $video = $this->em->getRepository(Video::class)->find($videoId);
-
-            if ($video) {
-                try {
-                    $this->mediaService->updateVideo($video, $newVideoLink);
-                    $this->addFlash('success', 'Vidéo mise à jour avec succès !');
-                } catch (\Exception $e) {
-                    $this->addFlash('error', 'Erreur lors de la mise à jour de la vidéo : '.$e->getMessage());
-                }
-            } else {
-                $this->addFlash('error', 'Vidéo introuvable.');
+            if ($request->request->get('newVideoLink') && $request->request->get('videoId')) {
+                $this->addFlash('success', 'Vidéo mise à jour avec succès !');
             }
+        } catch (\Exception $e) {
+            $this->addFlash('error', $e->getMessage());
         }
 
         $form = $this->createForm(TrickType::class, $trick, ['is_edit' => true]);
@@ -244,17 +151,17 @@ class TrickController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $slug = $slugger->slug($trick->getName());
             $trick->setSlug($slug);
-            $trick->setUpdatedAt(new \DateTimeImmutable());
             $picturesData = $form->get('pictures')->getData();
             $videoData = $form->get('videos')->getData();
 
             $this->mediaService->handlePictures($trick, $picturesData);
 
             $this->mediaService->handleVideos($trick, $videoData);
+            $trick->setUpdatedAt(new \DateTimeImmutable());
             $this->em->flush();
             $this->addFlash('success', 'Le trick a été mis à jour avec succès !');
 
-            return $this->redirectToRoute('app_tricks_list');
+            return $this->redirectToRoute('app_home');
         }
 
         return $this->render('trick/edit.html.twig', [
@@ -279,6 +186,6 @@ class TrickController extends AbstractController
 
         $this->addFlash('success', 'Le trick a été supprimé avec succès !');
 
-        return $this->redirectToRoute('app_tricks_list');
+        return $this->redirectToRoute('app_home');
     }
 }

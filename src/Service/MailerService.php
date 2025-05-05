@@ -2,16 +2,12 @@
 
 namespace App\Service;
 
-use App\Entity\User;
 use Symfony\Bridge\Twig\Mime\NotificationEmail;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 use Twig\Environment;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 
 class MailerService
 {
@@ -24,7 +20,7 @@ class MailerService
         #[Autowire('%admin_email%')] string $adminEmail,
         MailerInterface $mailer,
         Environment $templating,
-        VerifyEmailHelperInterface $verifyEmailHelper
+        VerifyEmailHelperInterface $verifyEmailHelper,
     ) {
         $this->adminEmail = $adminEmail;
         $this->mailer = $mailer;
@@ -46,7 +42,6 @@ class MailerService
         $this->mailer->send($email);
     }
 
-
     /**
      * @throws TransportExceptionInterface
      */
@@ -65,5 +60,4 @@ class MailerService
 
         $this->mailer->send($email);
     }
-
 }

@@ -1,5 +1,7 @@
 # ❄️ SNOWTRICKS
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/5955d0569a25412484cc736cdc008cd0)](https://app.codacy.com/gh/Psylvie/snowtricks/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+
 A community site dedicated to snowboarding tricks, developed with Symfony. Users can register, post tricks, and interact in a discussion area.
 
 # 🗒️ Description

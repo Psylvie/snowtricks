@@ -129,17 +129,30 @@ document.addEventListener('DOMContentLoaded', function () {
     if (addVideoButton) {
         addVideoButton.addEventListener("click", () => {
             const index = videoList.querySelectorAll("input").length;
-            const newWidget = videoList.dataset.prototype.replace(/__name__/g, index);
 
             const newVideoElement = document.createElement("div");
-            newVideoElement.innerHTML = newWidget;
+            newVideoElement.id = `trick_videos_${index}`;
+
+            const label = document.createElement("label");
+            label.setAttribute("for", `trick_videos_${index}_videoLink`);
+            label.textContent = "Lien de la vidéo";
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.id = `trick_videos_${index}_videoLink`;
+            input.name = `trick[videos][${index}][videoLink]`;
+            input.classList.add("form-control", "mb-3");
+
+            newVideoElement.appendChild(label);
+            newVideoElement.appendChild(input);
+
+            videoList.appendChild(newVideoElement);
 
             const videoInputs = newVideoElement.querySelectorAll("input");
             videoInputs.forEach((input) => {
                 input.style.marginBottom = "10px";
             });
 
-            videoList.insertAdjacentElement("beforeend", newVideoElement);
         });
     }
 });

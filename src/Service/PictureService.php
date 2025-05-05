@@ -34,7 +34,7 @@ class PictureService
             throw new \InvalidArgumentException('Type MIME de fichier invalide.');
         }
 
-        $fileName = md5(uniqid()).'.'.$extension;
+        $fileName = bin2hex(random_bytes(16)).'.'.$extension;
 
         $uploadPath = $this->params->get('pictures_directory').$folder;
         if (!file_exists($uploadPath)) {

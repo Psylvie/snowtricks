@@ -28,14 +28,14 @@
 			</div>
 			<div class="text-center mt-4 d-flex justify-content-center gap-2">
 				{% if page > 1 %}
-					<a href="{{ path(app.request.attributes.get('_route'), app.request.query.all | merge({'page': page - 1})) }}"
+					<a href="{{ path(app.request.attributes.get('_route'), app.request.query.all | merge({'page': page - 1})) }}#tricks-list"
 					   class="btn btn-primary">
 						← Précédent
 					</a>
 				{% endif %}
 
 				{% if hasMore %}
-					<a href="{{ path(app.request.attributes.get('_route'), app.request.query.all | merge({'page': page + 1})) }}"
+					<a href="{{ path(app.request.attributes.get('_route'), app.request.query.all | merge({'page': page + 1})) }}#tricks-list"
 					   class="btn btn-primary">
 						{% if page == 1 %}
 							Voir plus

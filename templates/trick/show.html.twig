@@ -84,20 +84,25 @@
 				{% include 'Trick/partials/_comments_list.html.twig' %}
 			</div>
 			</div>
-			{% if hasMore %}
-				<div class="text-center mt-4">
-					<a href="{{ path('app_trick_show', {
-						slug: trick.slug,
-						page: app.request.query.get('page')|default(1) + 1
-					}) }}"
-					   class="btn btn-primary">
-						Voir plus
-					</a>
-				</div>
-			{% endif %}
-			{% if comments is empty %}
-				<div class="d-flex justify-content-center p-2 text-muted small">
-					<em>Aucun commentaire pour le moment.</em>
+			{% if comments is not empty %}
+				<div class="text-center mt-4 d-flex justify-content-center gap-2">
+					{% if page > 1 %}
+						<a href="{{ path(app.request.attributes.get('_route'), app.request.query.all | merge({'page': page - 1, 'slug': trick.slug})) }}#tricks-comments"
+						   class="btn btn-primary">
+							← Précédent
+						</a>
+					{% endif %}
+
+					{% if hasMore %}
+						<a href="{{ path(app.request.attributes.get('_route'), app.request.query.all | merge({'page': page + 1, 'slug': trick.slug})) }}#tricks-comments"
+						   class="btn btn-primary">
+							{% if page == 1 %}
+								Voir plus
+							{% else %}
+								Suivant →
+							{% endif %}
+						</a>
+					{% endif %}
 				</div>
 			{% endif %}
 			<div class="d-flex justify-content-end mb-3">

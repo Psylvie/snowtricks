@@ -60,6 +60,7 @@ class TrickController extends AbstractController
             'mainPicture' => $mainPicture,
             'isEditing' => $isEditing,
             'hasMore' => $hasMore,
+            'page' => $page,
         ]);
     }
 

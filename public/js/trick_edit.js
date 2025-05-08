@@ -1,9 +1,12 @@
+// Ajoute un événement qui s'exécute lorsque le DOM est complètement chargé
 document.addEventListener('DOMContentLoaded', function () {
+
     const showMediaButton = document.getElementById('show-media');
 
     if (showMediaButton) {
         showMediaButton.addEventListener('click', function (event) {
             event.preventDefault();
+
             const mediaDiv = document.getElementById('trick-media');
             if (mediaDiv) {
                 mediaDiv.classList.toggle('d-none');
@@ -36,12 +39,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Delete Picture
     document.querySelectorAll('.delete-picture-link').forEach(link => {
         link.addEventListener('click', function (event) {
             event.preventDefault();
             const pictureId = this.getAttribute('data-picture-id');
             const url = this.getAttribute('href');
+
             if (confirm('Êtes-vous sûr de vouloir supprimer cette image ?')) {
                 fetch(url, {
                     method: 'POST',
@@ -63,12 +66,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Delete videos
     document.querySelectorAll('.delete-video-link').forEach(link => {
         link.addEventListener('click', function (event) {
             event.preventDefault();
             const videoId = this.getAttribute('data-video-id');
             const url = this.getAttribute('href');
+
             if (confirm('Êtes-vous sûr de vouloir supprimer cette vidéo ?')) {
                 fetch(url, {
                     method: 'POST',
@@ -90,7 +93,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Delete main picture
     document.querySelectorAll('.delete-image-main').forEach(button => {
         button.addEventListener('click', function (event) {
             event.preventDefault();
@@ -106,9 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
                     },
-                    body: JSON.stringify({
-                        delete_picture_id: pictureId,
-                    }),
+                    body: JSON.stringify({delete_picture_id: pictureId})
                 })
                     .then(response => response.json())
                     .then(data => {
@@ -122,7 +122,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Added new video fields
     const addVideoButton = document.getElementById("add-video");
     const videoList = document.getElementById("videos-list");
 
@@ -152,7 +151,6 @@ document.addEventListener('DOMContentLoaded', function () {
             videoInputs.forEach((input) => {
                 input.style.marginBottom = "10px";
             });
-
         });
     }
 });

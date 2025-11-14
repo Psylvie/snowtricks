@@ -68,6 +68,42 @@ DATABASE_URL="postgresql://app:!ChangeMe!@127.0.0.1:5432/app?serverVersion=16&ch
     ```bash
     php bin/console doctrine:fixtures:load
     ```
+
+## 🐳 Optional: Run with Docker (recommended if you have Docker) ##
+
+If you prefer using Docker (no need for XAMPP or local PHP/MariaDB), follow these steps. This is optional and does not remove the XAMPP instructions above — both methods are supported.
+
+1. **Prerequisites**
+
+
+    >Docker
+
+    >Docker Compose
+
+2. **Start the containers**
+ ```bash
+    docker compose up -d --build
+```
+
+3. **docker compose exec php composer install**
+ ```bash
+    docker compose exec php composer install
+```
+
+4. **Initialize database & fixtures inside Docker**
+ ```bash
+    docker compose exec php bin/console doctrine:database:create
+    docker compose exec php bin/console doctrine:migrations:migrate
+    docker compose exec php bin/console doctrine:fixtures:load
+```
+5. **Access the application**
+```ini
+- Application: http://localhost:8080
+- Mail viewer (Mailpit): http://localhost:8025 (if Mailpit is configured in the compose)
+```
+ Tip: If your system is Windows and file access is slow, consider enabling Docker Desktop's file sharing acceleration (VirtioFS) or using :delegated/:cached volume options in your docker-compose.yml for better performance.
+
+
 ### 📩 **Configuring email sending with Mailjet**
 
 This project uses **Mailjet** for sending emails, such as account validation and password resets. Here's how to configure Mailjet in the project.

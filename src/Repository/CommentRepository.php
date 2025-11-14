@@ -45,3 +45,5 @@ class CommentRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 }
+
+?>
